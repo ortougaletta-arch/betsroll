@@ -11,27 +11,44 @@ type Props = {
   offset: number;
 };
 
+const DRAG_ACTIVATE = 5;   // px before we claim pointer and consider it a drag
+const DRAG_COMMIT = 90;    // px threshold for vote commit
+
 export function SwipeableCard({ m, liveProgress, onOpen, onSwipe, z, offset }: Props) {
   const [drag, setDrag] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const activeRef = useRef(false); // true once we've crossed DRAG_ACTIVATE and captured pointer
   const startX = useRef(0);
+  const pointerIdRef = useRef<number | null>(null);
 
   const handleStart = (e: React.PointerEvent<HTMLDivElement>) => {
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    // Don't capture yet — let clicks on inner buttons work first.
     setDragging(true);
+    activeRef.current = false;
+    pointerIdRef.current = e.pointerId;
     startX.current = e.clientX;
   };
   const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragging) return;
-    setDrag(e.clientX - startX.current);
+    const dx = e.clientX - startX.current;
+    if (!activeRef.current && Math.abs(dx) < DRAG_ACTIVATE) return;
+    if (!activeRef.current) {
+      activeRef.current = true;
+      try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch {}
+    }
+    setDrag(dx);
   };
   const handleEnd = () => {
     if (!dragging) return;
     setDragging(false);
-    if (drag > 90) {
+    const wasActive = activeRef.current;
+    activeRef.current = false;
+    pointerIdRef.current = null;
+    if (!wasActive) { setDrag(0); return; } // simple click, no drag happened
+    if (drag > DRAG_COMMIT) {
       setDrag(500);
       setTimeout(() => onSwipe('yes'), 180);
-    } else if (drag < -90) {
+    } else if (drag < -DRAG_COMMIT) {
       setDrag(-500);
       setTimeout(() => onSwipe('no'), 180);
     } else {

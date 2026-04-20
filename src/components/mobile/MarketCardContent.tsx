@@ -25,10 +25,10 @@ export function MarketCardContent({ m, onOpen, liveProgress }: Props) {
         <Chip label={m.cat} tone="brand" />
       </div>
 
-      <div style={{
+      <div onClick={onOpen} style={{
         fontFamily: 'var(--display)', fontWeight: 600,
         fontSize: 22, lineHeight: 1.15, color: 'var(--ink)',
-        letterSpacing: -0.5,
+        letterSpacing: -0.5, cursor: 'pointer',
       }}>{m.q}</div>
 
       {m.status === 'live' ? (

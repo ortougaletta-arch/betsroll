@@ -1,10 +1,11 @@
 import { useViewport } from '../hooks/useViewport';
 import { MobileFeed } from '../components/mobile/MobileFeed';
 import { BottomNav } from '../components/mobile/BottomNav';
+import { DesktopFeed } from '../components/desktop/DesktopFeed';
 
 export default function FeedPage() {
   const isDesktop = useViewport();
-  if (isDesktop) return <div style={{ padding: 40 }}>Desktop Feed coming next task</div>;
+  if (isDesktop) return <DesktopFeed />;
   return (
     <>
       <MobileFeed />

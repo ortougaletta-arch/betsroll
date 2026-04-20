@@ -3,6 +3,7 @@ import { MARKETS } from '../data/markets';
 import { useViewport } from '../hooks/useViewport';
 import { MobileMarket } from '../components/mobile/MobileMarket';
 import { BottomNav } from '../components/mobile/BottomNav';
+import { DesktopMarket } from '../components/desktop/DesktopMarket';
 
 export default function MarketPage() {
   const { id } = useParams();
@@ -19,7 +20,7 @@ export default function MarketPage() {
     );
   }
 
-  if (isDesktop) return <div style={{ padding: 40 }}>Desktop Market coming next task (id={m.id})</div>;
+  if (isDesktop) return <DesktopMarket m={m} />;
   return (
     <>
       <MobileMarket m={m} />

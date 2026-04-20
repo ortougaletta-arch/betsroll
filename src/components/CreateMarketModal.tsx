@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { actions } from '../state/useStore';
 import { BRLogo } from './primitives/BRLogo';
 import { Chip } from './primitives/Chip';
@@ -8,7 +9,19 @@ type Props = { onClose: () => void; onCreated: (id: string) => void };
 
 const CATS = ['Crypto', 'Finance', 'Sports', 'Tech', 'Meme', 'Politics', 'Culture'] as const;
 
-export function CreateMarketModal({ onClose, onCreated }: Props) {
+export function CreateMarketModal(props: Props) {
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+  // Render at document.body so we escape parent stacking contexts (sticky
+  // asides, z-indexed bottom-nav) and always sit on top.
+  return createPortal(<CreateMarketModalBody {...props} />, document.body);
+}
+
+function CreateMarketModalBody({ onClose, onCreated }: Props) {
   const [q, setQ] = useState('');
   const [cat, setCat] = useState<(typeof CATS)[number]>('Crypto');
   const [resolvesIn, setResolvesIn] = useState('7d');
@@ -37,22 +50,26 @@ export function CreateMarketModal({ onClose, onCreated }: Props) {
     <div
       onClick={onClose}
       style={{
-        position: 'fixed', inset: 0, zIndex: 1000,
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(5, 5, 9, 0.78)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 16,
+        isolation: 'isolate',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%', maxWidth: 480,
-          background: 'linear-gradient(180deg, var(--bg-1), var(--bg))',
+          // Solid fallback underneath the gradient so the card is never see-through
+          background: 'var(--bg-1)',
+          backgroundImage: 'linear-gradient(180deg, var(--bg-1), var(--bg))',
           border: '1px solid var(--line-2)',
           borderRadius: 24,
           padding: 20,
           position: 'relative',
           maxHeight: '90dvh', overflowY: 'auto',
+          boxShadow: '0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
         }}
         className="noscroll"
       >

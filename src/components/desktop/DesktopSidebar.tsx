@@ -12,7 +12,8 @@ export function DesktopSidebar() {
   const tier = useStore((s) => s.tier);
   const items: Array<[string, string, string]> = [
     ['/', 'Feed', '🎲'],
-    ['/', 'Markets', '📊'],
+    ['/markets', 'Markets', '📊'],
+    ['/trade', 'Trade', '💹'],
     ['/profile', 'Profile', '👤'],
   ];
 
@@ -29,8 +30,8 @@ export function DesktopSidebar() {
           <div style={{ fontSize: 9.5, color: 'var(--ink-3)', letterSpacing: 0.4, textTransform: 'uppercase' }}>Roll the future</div>
         </div>
       </div>
-      {items.map(([path, label, ic], i) => {
-        const active = pathname === path && (i === 0 ? label === 'Feed' : true);
+      {items.map(([path, label, ic]) => {
+        const active = pathname === path;
         return (
           <button key={label} onClick={() => nav(path)} style={{
             display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',

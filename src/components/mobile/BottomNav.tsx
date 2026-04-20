@@ -11,10 +11,10 @@ export function BottomNav({ active }: Props) {
     { id: 'feed', label: 'Feed', path: '/', icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9v9H3z" stroke="currentColor" strokeWidth="1.8" /><path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="1.8" /></svg>
     )},
-    { id: 'markets', label: 'Markets', path: '/', icon: (
+    { id: 'markets', label: 'Markets', path: '/markets', icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 4 4 8-8M21 8v-3h-3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
     )},
-    { id: 'trade', label: 'Trade', path: '/', icon: (
+    { id: 'trade', label: 'Trade', path: '/trade', icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8h16M4 8l4-4M4 8l4 4M20 16H4M20 16l-4-4M20 16l-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
     )},
     { id: 'profile', label: 'Profile', path: '/profile', icon: (

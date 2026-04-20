@@ -47,7 +47,7 @@ const INITIAL: Store = {
   validationBoost: {},
   positions: SEED_POSITIONS,
   history: SEED_HISTORY,
-  vipPts: 6160,
+  vipPts: 4820,
   tier: 'Gold',
 };
 

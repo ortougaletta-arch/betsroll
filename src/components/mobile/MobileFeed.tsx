@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MARKETS } from '../../data/markets';
-import { actions, useStore } from '../../state/useStore';
+import { actions, useAllMarkets, useStore } from '../../state/useStore';
 import { BRLogo } from '../primitives/BRLogo';
 import { Icon } from '../primitives/icons';
 import { SwipeableCard } from './SwipeableCard';
@@ -12,6 +11,7 @@ export function MobileFeed() {
   const [flash, setFlash] = useState<null | 'yes' | 'no'>(null);
   const [tab, setTab] = useState<'Top' | 'New' | 'Following'>('Top');
   const boosts = useStore((s) => s.validationBoost);
+  const MARKETS = useAllMarkets();
 
   const visible = MARKETS.slice(idx, idx + 3);
 

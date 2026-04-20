@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MARKETS } from '../../data/markets';
-import { useStore } from '../../state/useStore';
+import { useAllMarkets, useStore } from '../../state/useStore';
 import { Avatar } from '../primitives/Avatar';
 import { Chip } from '../primitives/Chip';
 import { Icon } from '../primitives/icons';
@@ -16,6 +15,7 @@ export function MobileMarkets() {
   const [cat, setCat] = useState('All');
   const [sort, setSort] = useState<'Top' | 'New' | 'Closing'>('Top');
   const boosts = useStore((s) => s.validationBoost);
+  const MARKETS = useAllMarkets();
 
   const liveProgress = (m: (typeof MARKETS)[number]) =>
     Math.min(100, (m.progress ?? 100) + (boosts[m.id] ?? 0));

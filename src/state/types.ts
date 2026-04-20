@@ -1,4 +1,4 @@
-import type { TierName } from '../data/markets';
+import type { Market, TierName } from '../data/markets';
 
 export type Vote = 'yes' | 'no';
 export type Side = 'YES' | 'NO';
@@ -34,4 +34,5 @@ export type Store = {
   history: HistoryEntry[];
   vipPts: number;
   tier: TierName;
+  userMarkets: Market[];
 };

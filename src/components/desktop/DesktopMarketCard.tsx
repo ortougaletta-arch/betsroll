@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Market } from '../../data/markets';
+import { actions, useStore } from '../../state/useStore';
 import { Avatar } from '../primitives/Avatar';
 import { Chip } from '../primitives/Chip';
 import { Icon } from '../primitives/icons';
@@ -11,6 +12,15 @@ type Props = { m: Market; liveProgress: number; onOpen: () => void };
 
 export function DesktopMarketCard({ m, liveProgress, onOpen }: Props) {
   const [hover, setHover] = useState(false);
+  const [voteFlash, setVoteFlash] = useState<null | 'yes' | 'no'>(null);
+  const myVote = useStore((s) => s.votes[m.id]);
+
+  const castVote = (v: 'yes' | 'no') => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    actions.voteMarket(m.id, v);
+    setVoteFlash(v);
+    setTimeout(() => setVoteFlash(null), 900);
+  };
   return (
     <div
       onMouseEnter={() => setHover(true)}
@@ -65,6 +75,38 @@ export function DesktopMarketCard({ m, liveProgress, onOpen }: Props) {
           <ValidationBar pct={liveProgress} />
         </div>
       )}
+
+      {/* Voting row for validating markets (desktop equivalent of mobile swipe) */}
+      {m.status !== 'live' && (
+        <div style={{ display: 'flex', gap: 8, padding: '6px 0 2px', borderTop: '1px dashed var(--line)' }}>
+          {myVote ? (
+            <div style={{
+              flex: 1, height: 34, borderRadius: 9,
+              background: myVote === 'yes' ? 'rgba(158,240,26,0.1)' : 'rgba(255,46,132,0.1)',
+              border: `1px solid ${myVote === 'yes' ? 'rgba(158,240,26,0.3)' : 'rgba(255,46,132,0.3)'}`,
+              color: myVote === 'yes' ? 'var(--yes)' : 'var(--no)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 700, fontSize: 11.5, letterSpacing: 0.3, textTransform: 'uppercase',
+            }}>
+              {myVote === 'yes' ? '✓ Voted to approve' : '✕ Voted to skip'}
+            </div>
+          ) : (
+            <>
+              <button onClick={castVote('yes')} style={{
+                flex: 1, height: 34, borderRadius: 9,
+                background: voteFlash === 'yes' ? 'rgba(158,240,26,0.25)' : 'linear-gradient(135deg, #7c5cff, #4cc9ff)',
+                color: '#fff', fontWeight: 700, fontSize: 11.5, letterSpacing: 0.3,
+              }}>✓ Approve to go live</button>
+              <button onClick={castVote('no')} style={{
+                padding: '0 16px', height: 34, borderRadius: 9,
+                background: 'transparent', border: '1px solid var(--line)',
+                color: 'var(--ink-2)', fontWeight: 600, fontSize: 11.5,
+              }}>Skip</button>
+            </>
+          )}
+        </div>
+      )}
+
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={onOpen} style={{
           flex: 1, height: 40, borderRadius: 10,

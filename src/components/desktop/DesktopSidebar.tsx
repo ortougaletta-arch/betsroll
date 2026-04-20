@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ME } from '../../data/user';
 import { useStore } from '../../state/useStore';
 import { Avatar } from '../primitives/Avatar';
 import { BRLogo } from '../primitives/BRLogo';
 import { Icon } from '../primitives/icons';
+import { CreateMarketModal } from '../CreateMarketModal';
 
 export function DesktopSidebar() {
   const nav = useNavigate();
   const { pathname } = useLocation();
   const balance = useStore((s) => s.balance);
   const tier = useStore((s) => s.tier);
+  const [showCreate, setShowCreate] = useState(false);
   const items: Array<[string, string, string]> = [
     ['/', 'Feed', '🎲'],
     ['/markets', 'Markets', '📊'],
@@ -45,12 +48,21 @@ export function DesktopSidebar() {
         );
       })}
       <div style={{ marginTop: 10 }}>
-        <button style={{
-          width: '100%', padding: '12px', borderRadius: 12,
-          background: 'linear-gradient(135deg, #7c5cff, #4cc9ff)', color: '#fff',
-          fontWeight: 700, fontSize: 12.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-        }}>{Icon.plus(16, '#fff')}Roll a market</button>
+        <button
+          onClick={() => setShowCreate(true)}
+          style={{
+            width: '100%', padding: '12px', borderRadius: 12,
+            background: 'linear-gradient(135deg, #7c5cff, #4cc9ff)', color: '#fff',
+            fontWeight: 700, fontSize: 12.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          }}
+        >{Icon.plus(16, '#fff')}Roll a market</button>
       </div>
+      {showCreate && (
+        <CreateMarketModal
+          onClose={() => setShowCreate(false)}
+          onCreated={(id) => { setShowCreate(false); nav(`/market/${id}`); }}
+        />
+      )}
       <div style={{ marginTop: 'auto', padding: 14, borderRadius: 14, background: 'var(--bg-1)', border: '1px solid var(--line)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <Avatar name="MV" size={32} ring="var(--gold)" />

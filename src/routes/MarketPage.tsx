@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { MARKETS } from '../data/markets';
+import { useAllMarkets } from '../state/useStore';
 import { useViewport } from '../hooks/useViewport';
 import { MobileMarket } from '../components/mobile/MobileMarket';
 import { BottomNav } from '../components/mobile/BottomNav';
@@ -9,7 +9,8 @@ export default function MarketPage() {
   const { id } = useParams();
   const nav = useNavigate();
   const isDesktop = useViewport();
-  const m = MARKETS.find((x) => x.id === id);
+  const markets = useAllMarkets();
+  const m = markets.find((x) => x.id === id);
 
   if (!m) {
     return (

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
-import type { TierName } from '../data/markets';
-import { SEED_POSITIONS, SEED_HISTORY } from '../data/user';
+import { MARKETS, type Market, type TierName } from '../data/markets';
+import { ME, SEED_POSITIONS, SEED_HISTORY } from '../data/user';
 import type { HistoryEntry, Position, Side, Store, Vote } from './types';
 
 export type { HistoryEntry, Position, Side, Store, Vote };
@@ -16,6 +16,7 @@ const INITIAL: Store = {
   history: SEED_HISTORY,
   vipPts: 4820,
   tier: 'Gold',
+  userMarkets: [],
 };
 
 function loadInitial(): Store {
@@ -203,8 +204,67 @@ export const actions = {
     return { ok: true, cashOut, realizedPnl };
   },
 
+  createMarket(args: { q: string; cat: string; resolvesIn: string; yesPrice: number }) {
+    const { q, cat, resolvesIn, yesPrice } = args;
+    if (!q.trim() || q.length < 10) return { ok: false as const, reason: 'short-question' as const };
+    if (yesPrice <= 0 || yesPrice >= 1) return { ok: false as const, reason: 'bad-price' as const };
+
+    const id = `um-${Date.now()}`;
+    const newMarket: Market = {
+      id,
+      q: q.trim(),
+      cat,
+      creator: {
+        name: ME.handle.replace('@', ''),
+        handle: ME.handle,
+        tier: state.tier,
+        av: 'MV',
+        rep: 94,
+        markets: ME.marketsCreated + state.userMarkets.length + 1,
+        vol: '2.4M',
+      },
+      time: 'now',
+      yes: yesPrice,
+      no: 1 - yesPrice,
+      vol24: 0,
+      liq: 0,
+      status: 'validating',
+      progress: 0,
+      comments: 0,
+      spark: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50],
+      bull: 50,
+      resolvesIn,
+    };
+
+    const history: HistoryEntry = {
+      id: `h-${Date.now()}`,
+      kind: 'market',
+      icon: '＋',
+      txt: `Created market: "${q.slice(0, 40)}${q.length > 40 ? '…' : ''}"`,
+      time: 'now',
+    };
+
+    state = {
+      ...state,
+      userMarkets: [newMarket, ...state.userMarkets],
+      history: [history, ...state.history],
+    };
+    emit();
+    return { ok: true as const, id };
+  },
+
   reset() {
     state = { ...INITIAL, positions: SEED_POSITIONS, history: SEED_HISTORY };
     emit();
   },
 };
+
+export function useAllMarkets(): Market[] {
+  const userMarkets = useStore((s) => s.userMarkets);
+  return [...userMarkets, ...MARKETS];
+}
+
+export function findMarketById(id: string | undefined, userMarkets: Market[]): Market | undefined {
+  if (!id) return undefined;
+  return [...userMarkets, ...MARKETS].find((m) => m.id === id);
+}

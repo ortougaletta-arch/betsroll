@@ -1,6 +1,9 @@
+import { useId } from 'react';
+
 type Props = { data: number[]; color?: string; width?: number; height?: number };
 
 export function MiniChart({ data, color = 'var(--yes)', width = 340, height = 140 }: Props) {
+  const gid = useId();
   const pad = 10;
   const min = Math.min(...data), max = Math.max(...data);
   const range = max - min || 1;
@@ -12,7 +15,6 @@ export function MiniChart({ data, color = 'var(--yes)', width = 340, height = 14
   const area = d + ` L ${width - pad},${height - pad} L ${pad},${height - pad} Z`;
   const last = pts[pts.length - 1];
   const marker = pts[6] ?? pts[0];
-  const gid = `mc-${Math.random().toString(36).slice(2, 7)}`;
   return (
     <svg width={width} height={height} style={{ overflow: 'visible', display: 'block' }}>
       <defs>

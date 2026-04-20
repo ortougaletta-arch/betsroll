@@ -1,6 +1,9 @@
+import { useId } from 'react';
+
 type Props = { data: number[]; color?: string; width?: number; height?: number };
 
 export function Sparkline({ data, color = 'var(--yes)', width = 100, height = 32 }: Props) {
+  const gid = useId();
   const min = Math.min(...data), max = Math.max(...data);
   const range = max - min || 1;
   const pts = data.map((v, i) => [
@@ -9,7 +12,6 @@ export function Sparkline({ data, color = 'var(--yes)', width = 100, height = 32
   ]);
   const d = 'M ' + pts.map((p) => p.join(',')).join(' L ');
   const area = d + ` L ${width},${height} L 0,${height} Z`;
-  const gid = `spark-${Math.random().toString(36).slice(2, 7)}`;
   return (
     <svg width={width} height={height} style={{ overflow: 'visible' }}>
       <defs>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { COMMENTS, type Market } from '../../data/markets';
+import type { Market } from '../../data/markets';
+import { COMMENTS } from '../../data/markets';
 import { actions, useStore } from '../../state/useStore';
 import { Avatar } from '../primitives/Avatar';
 import { Chip } from '../primitives/Chip';
@@ -203,6 +204,7 @@ export function MobileMarket({ m }: Props) {
       </div>
 
       <div style={{ padding: '16px 14px 0' }}>
+        {m.status !== 'live' ? <ValidatingTradeLock m={m} onVote={() => actions.voteMarket(m.id, 'yes')} /> : (
         <div style={{
           padding: 16, borderRadius: 18,
           background: 'linear-gradient(180deg, var(--bg-1), var(--bg))',
@@ -375,6 +377,7 @@ export function MobileMarket({ m }: Props) {
             Crypto prediction markets involve risk. Only roll what you can afford to lose.
           </div>
         </div>
+        )}
       </div>
 
       <div style={{ padding: '18px 14px 0' }}>
@@ -423,6 +426,57 @@ export function MobileMarket({ m }: Props) {
           color: 'var(--yes)', fontWeight: 700, fontSize: 13,
           zIndex: 200,
         }}>{toast}</div>
+      )}
+    </div>
+  );
+}
+
+function ValidatingTradeLock({ m, onVote }: { m: Market; onVote: () => void }) {
+  const myVote = useStore((s) => s.votes[m.id]);
+  const boost = useStore((s) => s.validationBoost[m.id] ?? 0);
+  const progress = Math.min(100, (m.progress ?? 0) + boost);
+  return (
+    <div style={{
+      padding: 18, borderRadius: 18,
+      background: 'linear-gradient(180deg, rgba(124,92,255,0.08), rgba(76,201,255,0.04))',
+      border: '1px solid rgba(124,92,255,0.25)',
+      position: 'relative', overflow: 'hidden', textAlign: 'center',
+    }}>
+      <div style={{ position: 'absolute', top: -50, right: -50, width: 180, height: 180, borderRadius: '50%', border: '1px dashed rgba(124,92,255,0.2)' }} />
+      <div style={{ fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 700 }}>🔒 Trading locked</div>
+      <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--ink)', margin: '10px 0 4px', lineHeight: 1.3 }}>
+        Market in validation
+      </div>
+      <div style={{ fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: 14 }}>
+        Buying and selling open when this market reaches <b style={{ color: '#a794ff' }}>100%</b> approval by the community. Currently <span className="mono" style={{ color: 'var(--ink)', fontWeight: 700 }}>{progress}%</span>.
+      </div>
+      <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', marginBottom: 14 }}>
+        <div style={{
+          width: `${progress}%`, height: '100%',
+          background: 'linear-gradient(90deg, #7c5cff 0%, #4cc9ff 60%, #9ef01a 100%)',
+          boxShadow: '0 0 12px rgba(124,92,255,0.6)',
+        }} />
+      </div>
+      {myVote ? (
+        <div style={{
+          padding: '10px 14px', borderRadius: 10,
+          background: myVote === 'yes' ? 'rgba(158,240,26,0.1)' : 'rgba(255,46,132,0.1)',
+          border: `1px solid ${myVote === 'yes' ? 'rgba(158,240,26,0.3)' : 'rgba(255,46,132,0.3)'}`,
+          color: myVote === 'yes' ? 'var(--yes)' : 'var(--no)',
+          fontSize: 11, fontWeight: 700, letterSpacing: 0.3, textTransform: 'uppercase',
+        }}>
+          {myVote === 'yes' ? '✓ You voted to approve' : '✕ You voted to skip'}
+        </div>
+      ) : (
+        <button
+          onClick={onVote}
+          style={{
+            width: '100%', height: 46, borderRadius: 12,
+            background: 'linear-gradient(135deg, #7c5cff, #4cc9ff)', color: '#fff',
+            fontWeight: 700, fontSize: 14, letterSpacing: 0.3,
+            boxShadow: '0 10px 30px rgba(124,92,255,0.35)',
+          }}
+        >✓ Approve to go live · +4 VIP pts</button>
       )}
     </div>
   );

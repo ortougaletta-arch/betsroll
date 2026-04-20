@@ -32,9 +32,10 @@ export const CREATED = [
   { q: 'Is there a government shutdown before June?', status: 'Draft', vol: 0, fees: 0 },
 ];
 
+// Seed positions live on live markets only (validating markets aren't tradable in the prototype).
 export const SEED_POSITIONS: Position[] = [
-  { id: 'p1', marketId: 'm2', q: 'Does the ECB cut rates 50bps?', side: 'NO', size: 1200, entry: 0.71, cur: 0.76, pnl: 60.0, eta: '6d', createdAt: Date.now() - 86400000 },
-  { id: 'p2', marketId: 'm3', q: 'Will Lakers win the NBA Championship this season?', side: 'NO', size: 400, entry: 0.88, cur: 0.88, pnl: 0.0, eta: '12d', createdAt: Date.now() - 172800000 },
+  { id: 'p1', marketId: 'm1', q: 'Will Bitcoin close above $120,000 by end of April?', side: 'YES', size: 820, entry: 0.58, cur: 0.67, pnl: 73.8, eta: '3d 4h', createdAt: Date.now() - 86400000 },
+  { id: 'p2', marketId: 'm4', q: 'Does Apple ship a foldable iPhone before December 2026?', side: 'YES', size: 600, entry: 0.64, cur: 0.41, pnl: -215.6, eta: '243d', createdAt: Date.now() - 172800000 },
 ];
 
 export const SEED_HISTORY: HistoryEntry[] = [

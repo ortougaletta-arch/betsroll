@@ -71,26 +71,39 @@ export function MarketCardContent({ m, onOpen, liveProgress }: Props) {
 
       <div style={{ flex: 1 }} />
 
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button onClick={onOpen} style={{
-          flex: 1, height: 44, borderRadius: 12,
-          background: 'linear-gradient(180deg, rgba(158,240,26,0.2), rgba(158,240,26,0.08))',
-          border: '1px solid rgba(158,240,26,0.4)',
-          color: 'var(--yes)', fontWeight: 700, fontSize: 14, letterSpacing: 0.3,
-          fontFamily: 'var(--display)',
+      {m.status === 'live' ? (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={onOpen} style={{
+            flex: 1, height: 44, borderRadius: 12,
+            background: 'linear-gradient(180deg, rgba(158,240,26,0.2), rgba(158,240,26,0.08))',
+            border: '1px solid rgba(158,240,26,0.4)',
+            color: 'var(--yes)', fontWeight: 700, fontSize: 14, letterSpacing: 0.3,
+            fontFamily: 'var(--display)',
+          }}>
+            <span style={{ fontSize: 11, opacity: 0.7, marginRight: 6 }}>BUY</span>YES · {Math.round(m.yes * 100)}¢
+          </button>
+          <button onClick={onOpen} style={{
+            flex: 1, height: 44, borderRadius: 12,
+            background: 'linear-gradient(180deg, rgba(255,46,132,0.2), rgba(255,46,132,0.08))',
+            border: '1px solid rgba(255,46,132,0.4)',
+            color: 'var(--no)', fontWeight: 700, fontSize: 14, letterSpacing: 0.3,
+            fontFamily: 'var(--display)',
+          }}>
+            <span style={{ fontSize: 11, opacity: 0.7, marginRight: 6 }}>BUY</span>NO · {Math.round(m.no * 100)}¢
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          height: 44, borderRadius: 12,
+          background: 'rgba(124,92,255,0.1)',
+          border: '1px dashed rgba(124,92,255,0.35)',
+          color: '#a794ff',
+          fontWeight: 700, fontSize: 12, letterSpacing: 0.4, textTransform: 'uppercase',
         }}>
-          <span style={{ fontSize: 11, opacity: 0.7, marginRight: 6 }}>BUY</span>YES · {Math.round(m.yes * 100)}¢
-        </button>
-        <button onClick={onOpen} style={{
-          flex: 1, height: 44, borderRadius: 12,
-          background: 'linear-gradient(180deg, rgba(255,46,132,0.2), rgba(255,46,132,0.08))',
-          border: '1px solid rgba(255,46,132,0.4)',
-          color: 'var(--no)', fontWeight: 700, fontSize: 14, letterSpacing: 0.3,
-          fontFamily: 'var(--display)',
-        }}>
-          <span style={{ fontSize: 11, opacity: 0.7, marginRight: 6 }}>BUY</span>NO · {Math.round(m.no * 100)}¢
-        </button>
-      </div>
+          🔒 Trading opens at 100% approval
+        </div>
+      )}
 
       <div style={{ display: 'flex', gap: 18, justifyContent: 'space-between', alignItems: 'center', color: 'var(--ink-3)', paddingTop: 2 }}>
         <button style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--ink-3)', fontSize: 12 }}>

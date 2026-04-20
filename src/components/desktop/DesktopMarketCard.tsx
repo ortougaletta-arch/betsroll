@@ -107,18 +107,26 @@ export function DesktopMarketCard({ m, liveProgress, onOpen }: Props) {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 8 }}>
+      {m.status === 'live' ? (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={onOpen} style={{
+            flex: 1, height: 40, borderRadius: 10,
+            background: 'rgba(158,240,26,0.15)', border: '1px solid rgba(158,240,26,0.4)',
+            color: 'var(--yes)', fontWeight: 700, fontSize: 12.5, letterSpacing: 0.2,
+          }}>BUY YES · {Math.round(m.yes * 100)}¢</button>
+          <button onClick={onOpen} style={{
+            flex: 1, height: 40, borderRadius: 10,
+            background: 'rgba(255,46,132,0.12)', border: '1px solid rgba(255,46,132,0.35)',
+            color: 'var(--no)', fontWeight: 700, fontSize: 12.5, letterSpacing: 0.2,
+          }}>BUY NO · {Math.round(m.no * 100)}¢</button>
+        </div>
+      ) : (
         <button onClick={onOpen} style={{
-          flex: 1, height: 40, borderRadius: 10,
-          background: 'rgba(158,240,26,0.15)', border: '1px solid rgba(158,240,26,0.4)',
-          color: 'var(--yes)', fontWeight: 700, fontSize: 12.5, letterSpacing: 0.2,
-        }}>BUY YES · {Math.round(m.yes * 100)}¢</button>
-        <button onClick={onOpen} style={{
-          flex: 1, height: 40, borderRadius: 10,
-          background: 'rgba(255,46,132,0.12)', border: '1px solid rgba(255,46,132,0.35)',
-          color: 'var(--no)', fontWeight: 700, fontSize: 12.5, letterSpacing: 0.2,
-        }}>BUY NO · {Math.round(m.no * 100)}¢</button>
-      </div>
+          width: '100%', height: 40, borderRadius: 10,
+          background: 'rgba(124,92,255,0.1)', border: '1px dashed rgba(124,92,255,0.35)',
+          color: '#a794ff', fontWeight: 700, fontSize: 11.5, letterSpacing: 0.4, textTransform: 'uppercase',
+        }}>🔒 Trading opens at 100% approval</button>
+      )}
       <div style={{ display: 'flex', gap: 16, alignItems: 'center', color: 'var(--ink-3)', fontSize: 12 }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>{Icon.chat(14)}<span className="mono">{m.comments}</span></span>
         <span>{Icon.share(14)}</span>

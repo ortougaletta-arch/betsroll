@@ -82,8 +82,10 @@ export function MobileTrade() {
               const profit = p.pnl >= 0;
               const m = MARKETS.find((x) => x.id === p.marketId);
               const curPrice = m ? (p.side === 'YES' ? m.yes : m.no) : p.cur;
+              const canClose = !m || m.status === 'live';
               const closeAll = (e: React.MouseEvent) => {
                 e.stopPropagation();
+                if (!canClose) return;
                 const res = actions.sellPosition({ marketId: p.marketId, side: p.side, amount: p.size, curPrice });
                 if (res.ok) {
                   const sign = res.realizedPnl >= 0 ? '+' : '';
@@ -148,12 +150,15 @@ export function MobileTrade() {
                     >Adjust</button>
                     <button
                       onClick={closeAll}
+                      disabled={!canClose}
                       style={{
                         flex: 1, height: 30, borderRadius: 8,
-                        background: 'linear-gradient(135deg, #7c5cff, #4cc9ff)', color: '#fff',
+                        background: canClose ? 'linear-gradient(135deg, #7c5cff, #4cc9ff)' : 'rgba(255,255,255,0.05)',
+                        color: canClose ? '#fff' : 'var(--ink-3)',
                         fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
+                        cursor: canClose ? 'pointer' : 'not-allowed',
                       }}
-                    >💰 Close · {profit ? '+' : ''}${p.pnl.toFixed(0)}</button>
+                    >{canClose ? `💰 Close · ${profit ? '+' : ''}$${p.pnl.toFixed(0)}` : '🔒 Market validating'}</button>
                   </div>
                 </div>
               );

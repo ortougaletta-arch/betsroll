@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MARKETS } from '../../data/markets';
-import { useStore } from '../../state/useStore';
+import { actions, useStore } from '../../state/useStore';
 import { Avatar } from '../primitives/Avatar';
 
 export function MobileTrade() {
@@ -8,6 +9,7 @@ export function MobileTrade() {
   const positions = useStore((s) => s.positions);
   const balance = useStore((s) => s.balance);
   const freebet = useStore((s) => s.freebet);
+  const [toast, setToast] = useState<string | null>(null);
 
   const totalSize = positions.reduce((a, p) => a + p.size, 0);
   const totalPnl = positions.reduce((a, p) => a + p.pnl, 0);
@@ -79,16 +81,22 @@ export function MobileTrade() {
             {positions.map((p, i) => {
               const profit = p.pnl >= 0;
               const m = MARKETS.find((x) => x.id === p.marketId);
+              const curPrice = m ? (p.side === 'YES' ? m.yes : m.no) : p.cur;
+              const closeAll = (e: React.MouseEvent) => {
+                e.stopPropagation();
+                const res = actions.sellPosition({ marketId: p.marketId, side: p.side, amount: p.size, curPrice });
+                if (res.ok) {
+                  const sign = res.realizedPnl >= 0 ? '+' : '';
+                  setToast(`💰 Closed $${p.size.toFixed(0)} ${p.side} · ${sign}$${res.realizedPnl.toFixed(2)}`);
+                  setTimeout(() => setToast(null), 2000);
+                }
+              };
               return (
-                <button
+                <div
                   key={p.id}
-                  onClick={() => m && nav(`/market/${m.id}`)}
-                  disabled={!m}
                   style={{
-                    textAlign: 'left', width: '100%',
                     padding: '14px 0',
                     borderBottom: i < positions.length - 1 ? '1px dashed var(--line)' : 'none',
-                    background: 'transparent', cursor: m ? 'pointer' : 'default',
                   }}
                 >
                   <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -103,15 +111,22 @@ export function MobileTrade() {
                       color: p.side === 'YES' ? 'var(--yes)' : 'var(--no)',
                       flexShrink: 0, marginTop: 4,
                     }}>{p.side}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
+                    <button
+                      onClick={() => m && nav(`/market/${m.id}`)}
+                      disabled={!m}
+                      style={{
+                        textAlign: 'left', flex: 1, minWidth: 0, background: 'transparent',
+                        cursor: m ? 'pointer' : 'default', padding: 0,
+                      }}
+                    >
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{p.q}</div>
                       <div style={{ marginTop: 4, display: 'flex', gap: 10, fontSize: 10.5, color: 'var(--ink-3)', flexWrap: 'wrap' }}>
-                        <span>size <span className="mono" style={{ color: 'var(--ink-2)' }}>${p.size}</span></span>
+                        <span>size <span className="mono" style={{ color: 'var(--ink-2)' }}>${p.size.toFixed(0)}</span></span>
                         <span>entry <span className="mono" style={{ color: 'var(--ink-2)' }}>{Math.round(p.entry * 100)}¢</span></span>
-                        <span>now <span className="mono" style={{ color: 'var(--ink-2)' }}>{Math.round(p.cur * 100)}¢</span></span>
+                        <span>now <span className="mono" style={{ color: 'var(--ink-2)' }}>{Math.round(curPrice * 100)}¢</span></span>
                         <span>· {p.eta}</span>
                       </div>
-                    </div>
+                    </button>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div className="mono" style={{ color: profit ? 'var(--yes)' : 'var(--no)', fontWeight: 700, fontSize: 14 }}>
                         {profit ? '+' : ''}${p.pnl.toFixed(2)}
@@ -121,9 +136,36 @@ export function MobileTrade() {
                       </div>
                     </div>
                   </div>
-                </button>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8, marginLeft: 38 }}>
+                    <button
+                      onClick={() => m && nav(`/market/${m.id}`)}
+                      disabled={!m}
+                      style={{
+                        flex: 1, height: 30, borderRadius: 8,
+                        background: 'rgba(255,255,255,0.04)', border: '1px solid var(--line)',
+                        color: 'var(--ink-2)', fontSize: 11, fontWeight: 600,
+                      }}
+                    >Adjust</button>
+                    <button
+                      onClick={closeAll}
+                      style={{
+                        flex: 1, height: 30, borderRadius: 8,
+                        background: 'linear-gradient(135deg, #7c5cff, #4cc9ff)', color: '#fff',
+                        fontSize: 11, fontWeight: 700, letterSpacing: 0.3,
+                      }}
+                    >💰 Close · {profit ? '+' : ''}${p.pnl.toFixed(0)}</button>
+                  </div>
+                </div>
               );
             })}
+            {toast && (
+              <div style={{
+                position: 'fixed', bottom: 110, left: '50%', transform: 'translateX(-50%)',
+                padding: '12px 20px', borderRadius: 12,
+                background: 'rgba(158,240,26,0.15)', border: '1px solid rgba(158,240,26,0.4)',
+                color: 'var(--yes)', fontWeight: 700, fontSize: 13, zIndex: 200,
+              }}>{toast}</div>
+            )}
           </div>
         )}
       </div>

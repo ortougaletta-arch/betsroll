@@ -69,6 +69,73 @@ describe('actions.rollBet', () => {
   });
 });
 
+describe('actions.rollBet merge-on-same-side', () => {
+  it('merges two buys on same market+side into one position with weighted-avg entry', () => {
+    actions.rollBet({ marketId: 'mX', q: 'Q', side: 'YES', amount: 100, price: 0.50, eta: '1d' });
+    actions.rollBet({ marketId: 'mX', q: 'Q', side: 'YES', amount: 100, price: 0.70, eta: '1d' });
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    const mxPositions = raw.positions.filter((p: { marketId: string; side: string }) => p.marketId === 'mX' && p.side === 'YES');
+    expect(mxPositions.length).toBe(1);
+    expect(mxPositions[0].size).toBe(200);
+    expect(mxPositions[0].entry).toBeCloseTo(0.60, 2); // (100*0.5 + 100*0.7) / 200
+  });
+
+  it('keeps different-side positions separate', () => {
+    actions.rollBet({ marketId: 'mX', q: 'Q', side: 'YES', amount: 50, price: 0.60, eta: '1d' });
+    actions.rollBet({ marketId: 'mX', q: 'Q', side: 'NO',  amount: 50, price: 0.40, eta: '1d' });
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    const mx = raw.positions.filter((p: { marketId: string }) => p.marketId === 'mX');
+    expect(mx.length).toBe(2);
+    expect(mx.map((p: { side: string }) => p.side).sort()).toEqual(['NO', 'YES']);
+  });
+});
+
+describe('actions.sellPosition', () => {
+  it('returns cash at current price, computes realized PnL, closes position when fully sold', () => {
+    actions.rollBet({ marketId: 'mY', q: 'Q', side: 'YES', amount: 100, price: 0.50, eta: '1d' });
+    const beforeBalance = JSON.parse(localStorage.getItem('betsroll_v1')!).balance;
+    const res = actions.sellPosition({ marketId: 'mY', side: 'YES', amount: 100, curPrice: 0.75 });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.cashOut).toBeCloseTo(150, 2); // 200 shares × 0.75
+    expect(res.realizedPnl).toBeCloseTo(50, 2);
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.balance).toBeCloseTo(beforeBalance + 150, 2);
+    expect(raw.positions.find((p: { marketId: string }) => p.marketId === 'mY')).toBeUndefined();
+  });
+
+  it('supports partial sell — keeps remainder with updated size and PnL', () => {
+    actions.rollBet({ marketId: 'mZ', q: 'Q', side: 'YES', amount: 200, price: 0.50, eta: '1d' });
+    const res = actions.sellPosition({ marketId: 'mZ', side: 'YES', amount: 100, curPrice: 0.60 });
+    expect(res.ok).toBe(true);
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    const pos = raw.positions.find((p: { marketId: string }) => p.marketId === 'mZ');
+    expect(pos.size).toBeCloseTo(100, 2);
+    expect(pos.entry).toBeCloseTo(0.50, 2); // entry unchanged by sell
+    expect(pos.cur).toBeCloseTo(0.60, 2);
+  });
+
+  it('rejects sell with no position', () => {
+    const res = actions.sellPosition({ marketId: 'no-such', side: 'YES', amount: 10, curPrice: 0.50 });
+    expect(res.ok).toBe(false);
+  });
+
+  it('rejects oversell', () => {
+    actions.rollBet({ marketId: 'mQ', q: 'Q', side: 'YES', amount: 50, price: 0.50, eta: '1d' });
+    const res = actions.sellPosition({ marketId: 'mQ', side: 'YES', amount: 999, curPrice: 0.50 });
+    expect(res.ok).toBe(false);
+  });
+
+  it('realizes loss when selling at lower price', () => {
+    actions.rollBet({ marketId: 'mL', q: 'Q', side: 'YES', amount: 100, price: 0.80, eta: '1d' });
+    const res = actions.sellPosition({ marketId: 'mL', side: 'YES', amount: 100, curPrice: 0.40 });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(res.cashOut).toBeCloseTo(50, 2);     // 125 shares × 0.40
+    expect(res.realizedPnl).toBeCloseTo(-50, 2);
+  });
+});
+
 describe('actions.voteMarket', () => {
   it('yes vote increments validationBoost and vipPts', () => {
     actions.voteMarket('m1', 'yes');

@@ -106,18 +106,32 @@ export const actions = {
       balance -= amount;
     }
 
-    const position: Position = {
-      id: `p-${Date.now()}`,
-      marketId, q, side, size: amount,
-      entry: price, cur: price, pnl: 0,
-      eta, createdAt: Date.now(),
-    };
+    // Merge with existing position on same market+side: weighted-average entry
+    const existing = state.positions.find((p) => p.marketId === marketId && p.side === side);
+    let positions: Position[];
+    if (existing) {
+      const newSize = existing.size + amount;
+      const newEntry = (existing.entry * existing.size + price * amount) / newSize;
+      const newPnl = newSize * (price - newEntry) / newEntry; // 0 on pure buy, re-anchors on current
+      const merged: Position = {
+        ...existing, size: newSize, entry: newEntry, cur: price, pnl: newPnl, eta,
+      };
+      positions = state.positions.map((p) => (p.id === existing.id ? merged : p));
+    } else {
+      const position: Position = {
+        id: `p-${Date.now()}`,
+        marketId, q, side, size: amount,
+        entry: price, cur: price, pnl: 0,
+        eta, createdAt: Date.now(),
+      };
+      positions = [position, ...state.positions];
+    }
 
     const history: HistoryEntry = {
       id: `h-${Date.now()}`,
       kind: 'trade',
       icon: side === 'YES' ? '↗' : '↘',
-      txt: `Bought ${amount} ${side} on "${q.slice(0, 40)}${q.length > 40 ? '…' : ''}"`,
+      txt: `Bought $${amount.toFixed(0)} ${side} on "${q.slice(0, 40)}${q.length > 40 ? '…' : ''}"`,
       v: `-$${amount.toFixed(2)}`,
       time: 'now',
     };
@@ -135,12 +149,58 @@ export const actions = {
     state = {
       ...state,
       balance, freebet,
-      positions: [position, ...state.positions],
+      positions,
       history: hist,
       vipPts, tier,
     };
     emit();
     return { ok: true as const };
+  },
+
+  sellPosition(args: { marketId: string; side: Side; amount: number; curPrice: number }):
+    | { ok: true; cashOut: number; realizedPnl: number }
+    | { ok: false; reason: 'no-position' | 'amount' | 'oversell' } {
+    const { marketId, side, amount, curPrice } = args;
+    const pos = state.positions.find((p) => p.marketId === marketId && p.side === side);
+    if (!pos) return { ok: false, reason: 'no-position' };
+    if (amount <= 0) return { ok: false, reason: 'amount' };
+    if (amount > pos.size + 0.001) return { ok: false, reason: 'oversell' };
+
+    // shares held against sold-dollars portion: (amount / entry) shares -> cash at curPrice
+    const shares = amount / pos.entry;
+    const cashOut = shares * curPrice;
+    const realizedPnl = cashOut - amount;
+
+    const remainingSize = pos.size - amount;
+    let positions: Position[];
+    if (remainingSize < 0.01) {
+      positions = state.positions.filter((p) => p.id !== pos.id);
+    } else {
+      const remainingShares = remainingSize / pos.entry;
+      const remainingPnl = remainingShares * (curPrice - pos.entry);
+      positions = state.positions.map((p) =>
+        p.id === pos.id ? { ...p, size: remainingSize, cur: curPrice, pnl: remainingPnl } : p
+      );
+    }
+
+    const sign = realizedPnl >= 0 ? '+' : '';
+    const history: HistoryEntry = {
+      id: `h-${Date.now()}`,
+      kind: 'trade',
+      icon: '↩',
+      txt: `Sold $${amount.toFixed(0)} ${side} on "${pos.q.slice(0, 40)}${pos.q.length > 40 ? '…' : ''}" (${sign}$${realizedPnl.toFixed(2)})`,
+      v: `+$${cashOut.toFixed(2)}`,
+      time: 'now',
+    };
+
+    state = {
+      ...state,
+      balance: state.balance + cashOut,
+      positions,
+      history: [history, ...state.history],
+    };
+    emit();
+    return { ok: true, cashOut, realizedPnl };
   },
 
   reset() {

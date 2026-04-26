@@ -142,9 +142,9 @@ gh workflow run "Deploy to GitHub Pages" --repo <your-username>/betsroll
 
 ## Documentation
 
-- `../docs/superpowers/specs/2026-04-20-betsroll-design.md` — initial prototype design spec
-- `../docs/superpowers/specs/2026-04-20-screens-roadmap.md` — what screens exist, what's missing (MVP/V1/V2)
-- `../docs/superpowers/specs/2026-04-20-betsroll-web3-architecture.md` — Web3 roadmap (contracts, oracles, wallets) for the production version
-- `../docs/superpowers/plans/2026-04-20-betsroll-prototype.md` — full implementation plan for the current prototype (every step, every commit)
-- `CHANGELOG.md` — version history
-- `CONTRIBUTING.md` — code style, commit conventions, how to add a feature
+- [`docs/specs/2026-04-20-betsroll-design.md`](docs/specs/2026-04-20-betsroll-design.md) — initial prototype design spec
+- [`docs/specs/2026-04-20-screens-roadmap.md`](docs/specs/2026-04-20-screens-roadmap.md) — what screens exist, what's missing (MVP/V1/V2)
+- [`docs/specs/2026-04-20-betsroll-web3-architecture.md`](docs/specs/2026-04-20-betsroll-web3-architecture.md) — Web3 roadmap (contracts, oracles, wallets) for the production version
+- [`docs/plans/2026-04-20-betsroll-prototype.md`](docs/plans/2026-04-20-betsroll-prototype.md) — full implementation plan for the current prototype (every step, every commit)
+- [`CHANGELOG.md`](CHANGELOG.md) — version history
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — code style, commit conventions, how to add a feature

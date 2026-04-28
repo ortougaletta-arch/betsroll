@@ -18,7 +18,7 @@ export function MobileWallet() {
 
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--bg)', overflow: 'auto', paddingBottom: 100 }}>
-      <TopBar title="Wallet" onBack={() => nav(-1)} right={<button onClick={() => nav('/settings')} style={{ padding: 8, color: 'var(--ink-2)' }}>{Icon.settings(18)}</button>} />
+      <TopBar title="Wallet" onBack={() => nav(-1)} />
       <div style={{ padding: '14px 14px 0' }}>
         <div style={{ padding: 18, borderRadius: 20, background: 'linear-gradient(135deg, #1a1140 0%, #0c0a26 50%, #0a0a15 100%)', border: '1px solid rgba(124,92,255,0.3)', position: 'relative', overflow: 'hidden' }}>
           <div className="roll" style={{ position: 'absolute', top: -50, right: -50, width: 180, height: 180, borderRadius: '50%', border: '1px dashed rgba(124,92,255,0.25)' }} />

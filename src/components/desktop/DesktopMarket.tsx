@@ -46,7 +46,8 @@ export function DesktopMarket({ m }: Props) {
   const canSubmit = canBuy || canSell;
   const buyLabel = isGuest
     ? (amount > 0 ? `Save account to roll $${amount}` : 'Enter amount')
-    : (!canSubmit && amount > total ? 'Insufficient balance' : `🎲 Roll $${amount} on ${side.toUpperCase()}`);
+    : amount === 0 ? 'Enter amount'
+      : (!canSubmit && amount > total ? 'Insufficient balance' : `🎲 Roll $${amount} on ${side.toUpperCase()}`);
 
   const submit = () => {
     if (mode === 'buy') {
@@ -93,11 +94,16 @@ export function DesktopMarket({ m }: Props) {
 
         <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
           <Chip label={m.cat} tone="brand" />
-          {m.status === 'live' && <Chip label={`LIVE · ${m.resolvesIn}`} tone="live" />}
+          {m.status === 'resolved'
+            ? <Chip label={`Resolved ${m.resolution}`} />
+            : m.status === 'live'
+              ? <Chip label={`LIVE · ${m.resolvesIn}`} tone="live" />
+              : <Chip label={`Validating ${m.progress ?? 0}%`} />}
           <Chip label="Chainlink oracle" />
           <Chip label="Resolves Apr 30" />
         </div>
         <h1 style={{ margin: '0 0 14px', fontSize: 32, fontWeight: 600, lineHeight: 1.1, letterSpacing: -0.8, maxWidth: 780 }}>{m.q}</h1>
+        {m.status === 'resolved' && <ResolvedResultBandDesktop m={m} />}
 
         <div style={{ display: 'flex', gap: 14, alignItems: 'center', padding: 14, borderRadius: 14, background: 'var(--bg-1)', border: '1px solid var(--line)', marginBottom: 24, maxWidth: 780 }}>
           <Avatar name={m.creator.av} size={44} ring="var(--gold)" />
@@ -177,7 +183,7 @@ export function DesktopMarket({ m }: Props) {
           </div>
 
           <aside style={{ position: 'sticky', top: 24, alignSelf: 'start' }}>
-            {m.status !== 'live' ? <ValidatingTradeLockDesktop m={m} /> : (
+            {m.status === 'resolved' ? null : m.status !== 'live' ? <ValidatingTradeLockDesktop m={m} /> : (
             <div style={{ padding: 18, borderRadius: 18, background: 'linear-gradient(180deg, var(--bg-1), var(--bg))', border: '1px solid var(--line)', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: -50, right: -50, width: 140, height: 140, borderRadius: '50%', border: `1px dashed ${side === 'yes' ? 'rgba(158,240,26,0.15)' : 'rgba(255,46,132,0.15)'}` }} />
 
@@ -330,6 +336,39 @@ export function DesktopMarket({ m }: Props) {
           {toast}
         </div>
       )}
+    </div>
+  );
+}
+
+function ResolvedResultBandDesktop({ m }: { m: Market }) {
+  const resolvedYes = m.resolution === 'YES';
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      maxWidth: 780,
+      marginBottom: 18,
+      padding: '12px 14px',
+      borderRadius: 14,
+      background: resolvedYes ? 'rgba(158,240,26,0.10)' : 'rgba(255,46,132,0.10)',
+      border: `1px solid ${resolvedYes ? 'rgba(158,240,26,0.35)' : 'rgba(255,46,132,0.35)'}`,
+    }}>
+      <span style={{
+        padding: '6px 10px',
+        borderRadius: 999,
+        background: resolvedYes ? 'rgba(158,240,26,0.14)' : 'rgba(255,46,132,0.14)',
+        color: resolvedYes ? 'var(--yes)' : 'var(--no)',
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+      }}>Resolved {m.resolution}</span>
+      {m.resolvedAt && <span className="mono" style={{ color: 'var(--ink-2)', fontSize: 12 }}>{m.resolvedAt}</span>}
+      <div style={{ flex: 1 }} />
+      <span className="mono" style={{ color: 'var(--ink)', fontSize: 12, fontWeight: 700 }}>
+        Final YES {Math.round((m.finalYes ?? m.yes) * 100)}¢
+      </span>
     </div>
   );
 }

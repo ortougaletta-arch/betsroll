@@ -141,15 +141,15 @@ describe('actions.voteMarket', () => {
     actions.voteMarket('m1', 'yes');
     const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
     expect(raw.validationBoost.m1).toBe(4);
-    expect(raw.vipPts).toBe(4824);
+    expect(raw.vipPts).toBe(4822);
   });
 
-  it('no vote records but does not boost', () => {
+  it('no vote records and increments vipPts without validation boost', () => {
     actions.voteMarket('m1', 'no');
     const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
     expect(raw.votes.m1).toBe('no');
     expect(raw.validationBoost.m1).toBeUndefined();
-    expect(raw.vipPts).toBe(4820);
+    expect(raw.vipPts).toBe(4822);
   });
 
   it('ignores double-vote on same market', () => {

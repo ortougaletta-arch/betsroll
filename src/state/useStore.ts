@@ -121,14 +121,14 @@ export const actions = {
     if (state.votes[marketId]) return;
     const votes = { ...state.votes, [marketId]: vote };
     let { validationBoost, vipPts, tier, history } = state;
+    vipPts = vipPts + 2;
     if (vote === 'yes') {
       validationBoost = { ...validationBoost, [marketId]: (validationBoost[marketId] ?? 0) + 4 };
-      vipPts = vipPts + 4;
-      const prevTier = tier;
-      tier = tierFromPts(vipPts);
-      if (tier !== prevTier) {
-        history = [{ id: `h-${Date.now()}`, kind: 'tier', icon: '⬆', txt: `Reached VIP tier: ${tier}`, v: '+tier', time: 'now' }, ...history];
-      }
+    }
+    const prevTier = tier;
+    tier = tierFromPts(vipPts);
+    if (tier !== prevTier) {
+      history = [{ id: `h-${Date.now()}`, kind: 'tier', icon: '⬆', txt: `Reached VIP tier: ${tier}`, v: '+tier', time: 'now' }, ...history];
     }
     state = { ...state, votes, validationBoost, vipPts, tier, history };
     emit();

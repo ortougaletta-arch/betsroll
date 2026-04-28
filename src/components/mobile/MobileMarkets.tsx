@@ -9,7 +9,7 @@ import { TierBadge } from '../primitives/TierBadge';
 import { ValidationBar } from '../primitives/ValidationBar';
 import { MobileTopActions } from './MobileTopActions';
 
-const CATS = ['All', 'Crypto', 'Finance', 'Sports', 'Tech', 'Meme'];
+const CATS = ['All', 'Crypto', 'Finance', 'Sports', 'Tech', 'Meme', 'Entertainment'];
 
 export function MobileMarkets() {
   const nav = useNavigate();
@@ -76,6 +76,7 @@ export function MobileMarkets() {
               background: 'linear-gradient(180deg, var(--bg-1), var(--bg))',
               border: '1px solid var(--line)',
               display: 'flex', flexDirection: 'column', gap: 10,
+              opacity: m.status === 'resolved' ? 0.72 : 1,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -105,7 +106,15 @@ export function MobileMarkets() {
               <Sparkline data={m.spark} color={m.bull > 50 ? 'var(--yes)' : 'var(--no)'} width={64} height={28} />
             </div>
 
-            {m.status === 'live' ? (
+            {m.status === 'resolved' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: 'var(--ink-3)' }}>
+                <Chip label={`Resolved ${m.resolution}`} />
+                {m.resolvedAt && <span className="mono" style={{ color: 'var(--ink-2)' }}>{m.resolvedAt}</span>}
+                <div style={{ flex: 1 }} />
+                <span className="mono" style={{ color: 'var(--ink-2)', fontWeight: 600 }}>Final YES {Math.round((m.finalYes ?? m.yes) * 100)}¢</span>
+                <span style={{ color: 'var(--ink-2)', fontWeight: 700 }}>View result</span>
+              </div>
+            ) : m.status === 'live' ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10.5, color: 'var(--ink-3)' }}>
                 <span className="pulse" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--yes)', fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase' }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--yes)', boxShadow: '0 0 6px var(--yes)' }} />LIVE

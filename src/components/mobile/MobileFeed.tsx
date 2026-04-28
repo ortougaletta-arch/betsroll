@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { actions, useAllMarkets, useStore } from '../../state/useStore';
 import { BRLogo } from '../primitives/BRLogo';
@@ -12,17 +12,23 @@ export function MobileFeed() {
   const [flash, setFlash] = useState<null | 'yes' | 'no'>(null);
   const [tab, setTab] = useState<'Top' | 'New' | 'Following'>('Top');
   const boosts = useStore((s) => s.validationBoost);
+  const votes = useStore((s) => s.votes);
   const MARKETS = useAllMarkets();
+  const feedMarkets = MARKETS.filter((m) => m.status !== 'resolved' && !votes[m.id]);
 
-  const visible = MARKETS.slice(idx, idx + 3);
+  useEffect(() => {
+    if (idx > 0 && idx >= feedMarkets.length) setIdx(0);
+  }, [feedMarkets.length, idx]);
+
+  const visible = feedMarkets.slice(idx, idx + 3);
 
   const doSwipe = (dir: 'yes' | 'no') => {
-    const m = MARKETS[idx];
+    const m = feedMarkets[idx];
     if (!m) return;
     actions.voteMarket(m.id, dir);
     setFlash(dir);
     setTimeout(() => setFlash(null), 600);
-    setIdx((i) => Math.min(i + 1, MARKETS.length));
+    setIdx((i) => Math.min(i, Math.max(0, feedMarkets.length - 2)));
   };
 
   const liveProgress = (m: (typeof MARKETS)[number]) =>
@@ -63,7 +69,7 @@ export function MobileFeed() {
 
       <div style={{ flex: 1, position: 'relative', padding: '12px 14px 0' }}>
         <div style={{ position: 'relative', width: '100%', height: 520 }}>
-          {idx >= MARKETS.length ? (
+          {idx >= feedMarkets.length ? (
             <div style={{
               position: 'absolute', inset: 0, borderRadius: 24,
               background: 'var(--bg-1)', border: '1px dashed var(--line)',
@@ -91,7 +97,7 @@ export function MobileFeed() {
           ))}
         </div>
 
-        {idx < MARKETS.length && (
+        {idx < feedMarkets.length && (
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', padding: '16px 0 14px' }}>
             <button onClick={() => doSwipe('no')} style={{
               width: 54, height: 54, borderRadius: '50%',
@@ -99,7 +105,7 @@ export function MobileFeed() {
               border: '1.5px solid rgba(255,46,132,0.5)',
               color: 'var(--no)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>{Icon.close(22)}</button>
-            <button onClick={() => nav(`/market/${MARKETS[idx].id}`)} style={{
+            <button onClick={() => nav(`/market/${feedMarkets[idx].id}`)} style={{
               width: 44, height: 44, borderRadius: '50%', alignSelf: 'center',
               background: 'var(--bg-2)', border: '1px solid var(--line)', color: 'var(--ink-2)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -124,7 +130,7 @@ export function MobileFeed() {
           fontWeight: 700, letterSpacing: 0.6,
           fontSize: 12, pointerEvents: 'none', zIndex: 100,
         }}>
-          {flash === 'yes' ? '✓ APPROVED · +4pts' : '✕ SKIPPED'}
+          {flash === 'yes' ? '✓ APPROVED · +2pts' : '✕ SKIPPED · +2pts'}
         </div>
       )}
     </div>

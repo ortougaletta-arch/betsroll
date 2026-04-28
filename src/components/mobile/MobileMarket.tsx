@@ -109,7 +109,10 @@ export function MobileMarket({ m }: Props) {
       <div style={{ padding: '18px 18px 12px' }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
           <Chip label={m.cat} tone="brand" />
-          <Chip label={m.status === 'live' ? `LIVE · ${m.resolvesIn}` : `Validating ${m.progress ?? 0}%`} tone={m.status === 'live' ? 'live' : 'default'} />
+          <Chip
+            label={m.status === 'resolved' ? `Resolved ${m.resolution}` : m.status === 'live' ? `LIVE · ${m.resolvesIn}` : `Validating ${m.progress ?? 0}%`}
+            tone={m.status === 'live' ? 'live' : 'default'}
+          />
           <Chip label="Chainlink oracle" />
         </div>
         <h1 style={{
@@ -119,6 +122,7 @@ export function MobileMarket({ m }: Props) {
         <div style={{ marginTop: 10, fontSize: 12, color: 'var(--ink-3)' }}>
           Resolves <span className="mono" style={{ color: 'var(--ink-2)' }}>Apr 30, 2026</span> · via Chainlink
         </div>
+        {m.status === 'resolved' && <ResolvedResultBand m={m} />}
       </div>
 
       <div style={{ padding: '0 14px' }}>
@@ -213,7 +217,7 @@ export function MobileMarket({ m }: Props) {
       </div>
 
       <div style={{ padding: '16px 14px 0' }}>
-        {m.status !== 'live' ? <ValidatingTradeLock m={m} onVote={() => actions.voteMarket(m.id, 'yes')} /> : (
+        {m.status === 'resolved' ? null : m.status === 'validating' ? <ValidatingTradeLock m={m} onVote={() => actions.voteMarket(m.id, 'yes')} /> : (
         <div style={{
           padding: 16, borderRadius: 18,
           background: 'linear-gradient(180deg, var(--bg-1), var(--bg))',
@@ -440,6 +444,39 @@ export function MobileMarket({ m }: Props) {
           zIndex: 200,
         }}>{toast}</div>
       )}
+    </div>
+  );
+}
+
+function ResolvedResultBand({ m }: { m: Market }) {
+  const resolvedYes = m.resolution === 'YES';
+  return (
+    <div style={{
+      marginTop: 12,
+      padding: 12,
+      borderRadius: 14,
+      background: resolvedYes ? 'rgba(158,240,26,0.10)' : 'rgba(255,46,132,0.10)',
+      border: `1px solid ${resolvedYes ? 'rgba(158,240,26,0.35)' : 'rgba(255,46,132,0.35)'}`,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      flexWrap: 'wrap',
+    }}>
+      <div style={{
+        padding: '6px 10px',
+        borderRadius: 999,
+        background: resolvedYes ? 'rgba(158,240,26,0.14)' : 'rgba(255,46,132,0.14)',
+        color: resolvedYes ? 'var(--yes)' : 'var(--no)',
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+      }}>Resolved {m.resolution}</div>
+      {m.resolvedAt && <span className="mono" style={{ color: 'var(--ink-2)', fontSize: 11 }}>{m.resolvedAt}</span>}
+      <div style={{ flex: 1 }} />
+      <span className="mono" style={{ color: 'var(--ink)', fontSize: 12, fontWeight: 700 }}>
+        Final YES {Math.round((m.finalYes ?? m.yes) * 100)}¢
+      </span>
     </div>
   );
 }

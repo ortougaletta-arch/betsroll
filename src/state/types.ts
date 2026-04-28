@@ -63,15 +63,14 @@ export type Store = {
   txModal: TxModal;
   isOffline: boolean;
   isGeoBlocked: boolean;
-  searchQuery: string;
   overlay: OverlayKind | null;
   overlayCtx: TxModal | Record<string, unknown> | null;
   onboarded: boolean;
+  onboardStep: number;
   authProvider: string | null;
   isGuest: boolean;
   depositTrigger: DepositTrigger | null;
   showEmailSheet: boolean;
   guestEmail: string;
   skelDemo: boolean;
-  userHandle: string | null;
 };

@@ -33,17 +33,16 @@ const INITIAL: Store = {
   txModal: null,
   isOffline: false,
   isGeoBlocked: false,
-  searchQuery: '',
   overlay: null,
   overlayCtx: null,
   onboarded: false,
+  onboardStep: 0,
   authProvider: null,
   isGuest: false,
   depositTrigger: null,
   showEmailSheet: false,
   guestEmail: '',
   skelDemo: false,
-  userHandle: null,
 };
 
 function normalizeStore(parsed: Partial<Store>): Store {
@@ -301,17 +300,8 @@ export const actions = {
     return { ok: true as const, id };
   },
 
-  openUser(handle: string) {
-    state = { ...state, userHandle: handle };
-    emit();
-  },
-
   openNotifications() {
     state = { ...state, notifSeen: true };
-    emit();
-  },
-
-  openSettings() {
     emit();
   },
 
@@ -332,11 +322,6 @@ export const actions = {
 
   openWithdraw() {
     state = { ...state, walletStatus: 'withdrawing' };
-    emit();
-  },
-
-  openSearch(q = '') {
-    state = { ...state, searchQuery: q };
     emit();
   },
 
@@ -401,8 +386,13 @@ export const actions = {
     emit();
   },
 
+  setOnboardStep(onboardStep: number) {
+    state = { ...state, onboardStep };
+    emit();
+  },
+
   completeOnboarding() {
-    state = { ...state, onboarded: true, authProvider: null, isGeoBlocked: false };
+    state = { ...state, onboarded: true, authProvider: null, isGeoBlocked: false, onboardStep: 0 };
     emit();
   },
 

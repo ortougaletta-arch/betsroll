@@ -55,7 +55,8 @@ export function MobileMarket({ m }: Props) {
   const canSubmit = canBuy || canSell;
   const buyLabel = isGuest
     ? (amount > 0 ? `Save account to roll $${amount}` : 'Enter amount')
-    : (!canSubmit && amount > total ? 'Insufficient balance' : `🎲 Roll $${amount} on ${side.toUpperCase()}`);
+    : amount === 0 ? 'Enter amount'
+      : (!canSubmit && amount > total ? 'Insufficient balance' : `🎲 Roll $${amount} on ${side.toUpperCase()}`);
 
   const submit = () => {
     if (mode === 'buy') {

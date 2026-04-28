@@ -15,6 +15,7 @@ import { WelcomeScreen } from './components/mobile/auth/WelcomeScreen';
 import { SignInScreen } from './components/mobile/auth/SignInScreen';
 import { WalletReadyScreen } from './components/mobile/auth/WalletReadyScreen';
 import { GeoBlockScreen } from './components/mobile/auth/GeoBlockScreen';
+import { OnboardingTutorial } from './components/mobile/auth/OnboardingTutorial';
 import { NotFoundScreen } from './components/mobile/NotFoundScreen';
 import { NetworkErrorScreen } from './components/mobile/NetworkErrorScreen';
 import { TierUpModal } from './components/mobile/TierUpModal';
@@ -23,7 +24,7 @@ import { actions, useStore } from './state/useStore';
 
 export default function App() {
   const isOffline = useStore((s) => s.isOffline);
-  const tierUp = useStore((s) => s.overlay === 'tierUp' ? s.overlayCtx as { tier?: TierName } | null : null);
+  const tierUp = useStore((s) => s.overlay === 'tierUp' ? s.overlayCtx as { tier: TierName } | null : null);
 
   return (
     <>
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/welcome" element={<WelcomeScreen />} />
         <Route path="/welcome/signin" element={<SignInScreen />} />
         <Route path="/welcome/ready" element={<WalletReadyScreen />} />
+        <Route path="/onboarding" element={<OnboardingTutorial />} />
         <Route path="/blocked" element={<GeoBlockScreen />} />
         <Route path="/markets" element={<MarketsPage />} />
         <Route path="/market/:id" element={<MarketPage />} />

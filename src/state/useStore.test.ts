@@ -200,6 +200,12 @@ describe('system layer actions', () => {
     expect(raw.authProvider).toBeNull();
   });
 
+  it('setOnboardStep persists tutorial progress', () => {
+    actions.setOnboardStep(2);
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.onboardStep).toBe(2);
+  });
+
   it('setOffline toggles offline state', () => {
     actions.setOffline(true);
     let raw = JSON.parse(localStorage.getItem('betsroll_v1')!);

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PLACEHOLDER_WALLET_ADDRESS } from '../../data/system';
 import { actions } from '../../state/useStore';
 import { Icon } from '../primitives/icons';
 import { Banner, TopBar } from '../primitives/system';
 import { TxStatusOverlay } from './TxStatusOverlay';
 
-const ADDR = '0x9b2a5c4d7e8f1a3b6c4d7e8f1a3b6c4d71fd';
+const ADDR = PLACEHOLDER_WALLET_ADDRESS;
 
 export function MobileDeposit() {
   const nav = useNavigate();

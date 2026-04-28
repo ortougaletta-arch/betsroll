@@ -52,6 +52,12 @@ input { font-family: inherit; }
 }
 .roll { animation: roll 12s linear infinite; }
 
+@keyframes br-cube-spin {
+  from { transform: rotateX(-30deg) rotateZ(45deg) rotateY(0deg); }
+  to { transform: rotateX(-30deg) rotateZ(45deg) rotateY(360deg); }
+}
+.br-cube-spin { animation: br-cube-spin 12s linear infinite; }
+
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
@@ -97,6 +103,19 @@ input { font-family: inherit; }
 }
 
 .no-select { user-select: none; -webkit-user-select: none; }
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-enter { animation: page-enter 0.28s ease both; }
+
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.92); }
+  70% { opacity: 1; transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+.pop { animation: pop 0.36s cubic-bezier(.3,.8,.5,1.2) both; }
 
 .skel {
   background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.04) 100%);

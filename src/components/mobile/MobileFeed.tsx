@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { actions, useAllMarkets, useStore } from '../../state/useStore';
 import { BRLogo } from '../primitives/BRLogo';
 import { Icon } from '../primitives/icons';
@@ -38,12 +38,14 @@ export function MobileFeed() {
         backdropFilter: 'blur(12px)',
         position: 'sticky', top: 0, zIndex: 5,
       }}>
-        <BRLogo size={32} spin />
+        <Link to="/" style={{ display: 'flex', textDecoration: 'none' }} aria-label="Betsroll home">
+          <BRLogo size={32} spin />
+        </Link>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600 }}>Betsroll</div>
           <div style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 600, marginTop: -1 }}>Roll the future</div>
         </div>
-        <button onClick={() => actions.openSearch()} style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--bg-2)', color: 'var(--ink-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.search(16)}</button>
+        <button onClick={() => nav('/markets')} style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--bg-2)', color: 'var(--ink-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.search(16)}</button>
         <MobileTopActions />
       </div>
 

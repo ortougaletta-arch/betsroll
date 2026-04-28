@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ME } from '../../data/user';
 import { useStore } from '../../state/useStore';
 import { Avatar } from '../primitives/Avatar';
@@ -27,7 +27,9 @@ export function DesktopSidebar() {
       background: 'var(--bg)', height: '100dvh', position: 'sticky', top: 0, flexShrink: 0,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 4px 20px', borderBottom: '1px dashed var(--line)', marginBottom: 14 }}>
-        <BRLogo size={34} spin />
+        <Link to="/" style={{ display: 'flex', textDecoration: 'none' }} aria-label="Betsroll home">
+          <BRLogo size={34} spin />
+        </Link>
         <div>
           <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: -0.3 }}>Betsroll</div>
           <div style={{ fontSize: 9.5, color: 'var(--ink-3)', letterSpacing: 0.4, textTransform: 'uppercase' }}>Roll the future</div>

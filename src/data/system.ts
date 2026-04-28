@@ -1,5 +1,12 @@
 import type { TierName } from './markets';
 
+export const PLACEHOLDER_WALLET_ADDRESS = '0x9b2a5c4d7e8f1a3b6c4d7e8f1a3b6c4d71fd';
+
+export function truncateAddress(addr: string, head = 6, tail = 4): string {
+  if (addr.length <= head + tail + 3) return addr;
+  return `${addr.slice(0, head)}...${addr.slice(-tail)}`;
+}
+
 export type NotificationKind = 'social' | 'market' | 'account';
 export type NotificationIcon =
   | 'follow'
@@ -166,7 +173,7 @@ export const RESOLVED_MARKETS: ResolvedMarket[] = [
     traders: 1842,
     spark: [55, 58, 62, 68, 72, 75, 79, 82, 84, 85, 84, 84],
     source: 'Chainlink',
-    proof: '0x9b2a...71fd',
+    proof: truncateAddress(PLACEHOLDER_WALLET_ADDRESS),
   },
 ];
 

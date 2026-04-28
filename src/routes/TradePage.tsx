@@ -1,6 +1,7 @@
 import { useViewport } from '../hooks/useViewport';
 import { MobileTrade } from '../components/mobile/MobileTrade';
 import { BottomNav } from '../components/mobile/BottomNav';
+import { GuestBanner } from '../components/mobile/GuestBanner';
 import { DesktopSidebar } from '../components/desktop/DesktopSidebar';
 
 export default function TradePage() {
@@ -19,6 +20,7 @@ export default function TradePage() {
   }
   return (
     <>
+      <GuestBanner />
       <MobileTrade />
       <BottomNav active="trade" />
     </>

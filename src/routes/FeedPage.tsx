@@ -1,6 +1,7 @@
 import { useViewport } from '../hooks/useViewport';
 import { MobileFeed } from '../components/mobile/MobileFeed';
 import { BottomNav } from '../components/mobile/BottomNav';
+import { GuestBanner } from '../components/mobile/GuestBanner';
 import { DesktopFeed } from '../components/desktop/DesktopFeed';
 
 export default function FeedPage() {
@@ -8,6 +9,7 @@ export default function FeedPage() {
   if (isDesktop) return <DesktopFeed />;
   return (
     <>
+      <GuestBanner />
       <MobileFeed />
       <BottomNav active="feed" />
     </>

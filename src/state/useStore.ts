@@ -1,11 +1,20 @@
 import { useSyncExternalStore } from 'react';
 import { MARKETS, type Market, type TierName } from '../data/markets';
+import { SETTINGS_DATA, type TransactionKind } from '../data/system';
 import { ME, SEED_POSITIONS, SEED_HISTORY } from '../data/user';
-import type { HistoryEntry, Position, Side, Store, Vote } from './types';
+import type { DepositTrigger, HistoryEntry, OverlayKind, Position, Settings, Side, Store, TxModal, Vote } from './types';
 
 export type { HistoryEntry, Position, Side, Store, Vote };
 
 const STORAGE_KEY = 'betsroll_v1';
+
+const DEFAULT_SETTINGS: Settings = {
+  notifs: { ...SETTINGS_DATA.notifications },
+  twoFA: false,
+  hideBalance: false,
+  language: 'English',
+  theme: 'Dark',
+};
 
 const INITIAL: Store = {
   balance: 4820.56,
@@ -17,14 +26,48 @@ const INITIAL: Store = {
   vipPts: 4820,
   tier: 'Gold',
   userMarkets: [],
+  notifSeen: false,
+  follows: {},
+  settings: DEFAULT_SETTINGS,
+  walletStatus: 'idle',
+  txModal: null,
+  isOffline: false,
+  isGeoBlocked: false,
+  searchQuery: '',
+  overlay: null,
+  overlayCtx: null,
+  onboarded: false,
+  authProvider: null,
+  isGuest: false,
+  depositTrigger: null,
+  showEmailSheet: false,
+  guestEmail: '',
+  skelDemo: false,
+  userHandle: null,
 };
+
+function normalizeStore(parsed: Partial<Store>): Store {
+  return {
+    ...INITIAL,
+    ...parsed,
+    settings: {
+      ...DEFAULT_SETTINGS,
+      ...(parsed.settings ?? {}),
+      notifs: {
+        ...DEFAULT_SETTINGS.notifs,
+        ...(parsed.settings?.notifs ?? {}),
+      },
+    },
+    follows: parsed.follows ?? {},
+  };
+}
 
 function loadInitial(): Store {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return INITIAL;
     const parsed = JSON.parse(raw);
-    return { ...INITIAL, ...parsed };
+    return normalizeStore(parsed);
   } catch {
     return INITIAL;
   }
@@ -143,8 +186,12 @@ export const actions = {
     const tier = tierFromPts(vipPts);
 
     let hist = [history, ...state.history];
+    let overlay: Store['overlay'] = state.overlay;
+    let overlayCtx: Store['overlayCtx'] = state.overlayCtx;
     if (tier !== prevTier) {
       hist = [{ id: `h-${Date.now() + 1}`, kind: 'tier', icon: '⬆', txt: `Reached VIP tier: ${tier}`, v: '+tier', time: 'now' }, ...hist];
+      overlay = 'tierUp';
+      overlayCtx = { tier };
     }
 
     state = {
@@ -153,6 +200,7 @@ export const actions = {
       positions,
       history: hist,
       vipPts, tier,
+      overlay, overlayCtx,
     };
     emit();
     return { ok: true as const };
@@ -251,6 +299,163 @@ export const actions = {
     };
     emit();
     return { ok: true as const, id };
+  },
+
+  openUser(handle: string) {
+    state = { ...state, userHandle: handle };
+    emit();
+  },
+
+  openNotifications() {
+    state = { ...state, notifSeen: true };
+    emit();
+  },
+
+  openSettings() {
+    emit();
+  },
+
+  openWallet() {
+    state = { ...state, walletStatus: 'idle' };
+    emit();
+  },
+
+  openDeposit() {
+    if (state.isGuest) {
+      state = { ...state, depositTrigger: 'manual', showEmailSheet: true };
+      emit();
+      return;
+    }
+    state = { ...state, walletStatus: 'depositing' };
+    emit();
+  },
+
+  openWithdraw() {
+    state = { ...state, walletStatus: 'withdrawing' };
+    emit();
+  },
+
+  openSearch(q = '') {
+    state = { ...state, searchQuery: q };
+    emit();
+  },
+
+  toggleFollow(handle: string) {
+    state = { ...state, follows: { ...state.follows, [handle]: !state.follows[handle] } };
+    emit();
+  },
+
+  setSetting(group: 'notifs' | null, key: string, value: boolean | string) {
+    if (group === 'notifs') {
+      state = {
+        ...state,
+        settings: {
+          ...state.settings,
+          notifs: { ...state.settings.notifs, [key]: Boolean(value) },
+        },
+      };
+    } else {
+      state = { ...state, settings: { ...state.settings, [key]: value } };
+    }
+    emit();
+  },
+
+  simulateTx(args: {
+    kind: TransactionKind;
+    amount: number;
+    hash?: string;
+    label?: string;
+    autoConfirmMs?: number;
+    willFail?: boolean;
+  }) {
+    const { kind, amount, hash, label, autoConfirmMs = 1800, willFail = false } = args;
+    const pending: NonNullable<TxModal> = { state: 'pending', kind, amount, hash, label };
+    state = { ...state, overlay: 'txStatus', overlayCtx: pending, txModal: pending };
+    emit();
+
+    const confirm = () => {
+      const nextCtx: NonNullable<TxModal> = { ...pending, state: willFail ? 'failed' : 'confirmed' };
+      let balance = state.balance;
+      if (!willFail && kind === 'deposit') balance += amount;
+      if (!willFail && kind === 'withdraw') balance = Math.max(0, balance - amount);
+      state = { ...state, balance, overlayCtx: nextCtx, txModal: nextCtx };
+      emit();
+    };
+
+    if (autoConfirmMs <= 0) confirm();
+    else window.setTimeout(confirm, autoConfirmMs);
+  },
+
+  setOffline(isOffline: boolean) {
+    state = { ...state, isOffline };
+    emit();
+  },
+
+  setGeoBlocked(isGeoBlocked: boolean) {
+    state = { ...state, isGeoBlocked };
+    emit();
+  },
+
+  setOnboarded(onboarded: boolean) {
+    state = { ...state, onboarded };
+    emit();
+  },
+
+  completeOnboarding() {
+    state = { ...state, onboarded: true, authProvider: null, isGeoBlocked: false };
+    emit();
+  },
+
+  setAuthProvider(authProvider: string | null) {
+    state = { ...state, authProvider };
+    emit();
+  },
+
+  enterAsGuest() {
+    state = {
+      ...state,
+      isGuest: true,
+      onboarded: true,
+      balance: 0,
+      freebet: 0,
+      positions: [],
+      authProvider: null,
+      depositTrigger: null,
+      showEmailSheet: false,
+      guestEmail: '',
+    };
+    emit();
+  },
+
+  triggerDeposit(reason: DepositTrigger) {
+    if (state.isGuest) {
+      state = { ...state, depositTrigger: reason, showEmailSheet: true };
+      emit();
+      return { guest: true as const };
+    }
+    state = { ...state, depositTrigger: reason };
+    emit();
+    return { guest: false as const };
+  },
+
+  captureEmail(email: string) {
+    state = { ...state, guestEmail: email, showEmailSheet: false };
+    emit();
+  },
+
+  dismissEmailSheet() {
+    state = { ...state, showEmailSheet: false, depositTrigger: null };
+    emit();
+  },
+
+  showOverlay(overlay: OverlayKind, overlayCtx: Store['overlayCtx'] = null) {
+    state = { ...state, overlay, overlayCtx };
+    emit();
+  },
+
+  closeOverlay() {
+    state = { ...state, overlay: null, overlayCtx: null, txModal: null };
+    emit();
   },
 
   reset() {

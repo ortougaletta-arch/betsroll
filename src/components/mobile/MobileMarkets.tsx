@@ -7,6 +7,7 @@ import { Icon } from '../primitives/icons';
 import { Sparkline } from '../primitives/Sparkline';
 import { TierBadge } from '../primitives/TierBadge';
 import { ValidationBar } from '../primitives/ValidationBar';
+import { MobileTopActions } from './MobileTopActions';
 
 const CATS = ['All', 'Crypto', 'Finance', 'Sports', 'Tech', 'Meme'];
 
@@ -36,7 +37,8 @@ export function MobileMarkets() {
           <div style={{ fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600 }}>All markets</div>
           <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)', letterSpacing: -0.4 }}>Markets <span className="mono" style={{ color: 'var(--ink-3)', fontSize: 14, fontWeight: 600 }}>· {filtered.length}</span></div>
         </div>
-        <button style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--bg-2)', color: 'var(--ink-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.search(16)}</button>
+        <button onClick={() => nav('/')} style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--bg-2)', color: 'var(--ink-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.search(16)}</button>
+        <MobileTopActions />
       </div>
 
       <div style={{ padding: '10px 14px 6px', display: 'flex', gap: 4, background: 'var(--bg)' }}>

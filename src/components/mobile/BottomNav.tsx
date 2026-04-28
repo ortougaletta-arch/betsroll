@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { JSX } from 'react';
+import { NOTIFICATIONS } from '../../data/system';
+import { actions, useStore } from '../../state/useStore';
 import { Icon } from '../primitives/icons';
 import { CreateMarketModal } from '../CreateMarketModal';
 
-type Active = 'feed' | 'markets' | 'trade' | 'profile';
+type Active = 'feed' | 'markets' | 'trade' | 'inbox';
 type Props = { active: Active };
 
 export function BottomNav({ active }: Props) {
   const nav = useNavigate();
   const [showCreate, setShowCreate] = useState(false);
+  const notifSeen = useStore((s) => s.notifSeen);
+  const unread = NOTIFICATIONS.some((n) => !n.read) && !notifSeen;
   const tabs: Array<{ id: Active; label: string; path: string; icon: JSX.Element }> = [
     { id: 'feed', label: 'Feed', path: '/', icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9v9H3z" stroke="currentColor" strokeWidth="1.8" /><path d="M9 21v-6h6v6" stroke="currentColor" strokeWidth="1.8" /></svg>
@@ -20,8 +24,8 @@ export function BottomNav({ active }: Props) {
     { id: 'trade', label: 'Trade', path: '/trade', icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8h16M4 8l4-4M4 8l4 4M20 16H4M20 16l-4-4M20 16l-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
     )},
-    { id: 'profile', label: 'Profile', path: '/profile', icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8" /><path d="M4 21c1-4 4-6 8-6s7 2 8 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+    { id: 'inbox', label: 'Inbox', path: '/notifications', icon: (
+      <span style={{ position: 'relative', display: 'inline-flex' }}>{Icon.bell(20)}{unread && <span style={{ position: 'absolute', top: -1, right: -2, width: 7, height: 7, borderRadius: '50%', background: 'var(--no)', boxShadow: '0 0 8px var(--no)' }} />}</span>
     )},
   ];
   return (
@@ -33,7 +37,10 @@ export function BottomNav({ active }: Props) {
       backdropFilter: 'blur(8px)',
     }}>
       {tabs.slice(0, 2).map((t) => (
-        <button key={t.id} onClick={() => nav(t.path)} style={{
+        <button key={t.id} onClick={() => {
+          if (t.id === 'inbox') actions.openNotifications();
+          nav(t.path);
+        }} style={{
           flex: 1, paddingTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
           color: active === t.id ? 'var(--ink)' : 'var(--ink-3)',
         }}>
@@ -52,7 +59,10 @@ export function BottomNav({ active }: Props) {
         }}
       >{Icon.plus(22, '#fff')}</button>
       {tabs.slice(2).map((t) => (
-        <button key={t.id} onClick={() => nav(t.path)} style={{
+        <button key={t.id} onClick={() => {
+          if (t.id === 'inbox') actions.openNotifications();
+          nav(t.path);
+        }} style={{
           flex: 1, paddingTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
           color: active === t.id ? 'var(--ink)' : 'var(--ink-3)',
         }}>

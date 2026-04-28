@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { actions } from '../state/useStore';
+import { actions, useStore } from '../state/useStore';
 import { BRLogo } from './primitives/BRLogo';
 import { Chip } from './primitives/Chip';
 import { Icon } from './primitives/icons';
@@ -28,9 +28,15 @@ function CreateMarketModalBody({ onClose, onCreated }: Props) {
   const [yesCents, setYesCents] = useState(50);
   const [err, setErr] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const isGuest = useStore((s) => s.isGuest);
 
   const submit = () => {
     setErr(null);
+    if (isGuest) {
+      actions.triggerDeposit('create');
+      onClose();
+      return;
+    }
     setSubmitting(true);
     const res = actions.createMarket({
       q, cat, resolvesIn,

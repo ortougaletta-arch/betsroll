@@ -1,6 +1,7 @@
 import { useViewport } from '../hooks/useViewport';
 import { MobileProfile } from '../components/mobile/MobileProfile';
 import { BottomNav } from '../components/mobile/BottomNav';
+import { GuestBanner } from '../components/mobile/GuestBanner';
 import { DesktopSidebar } from '../components/desktop/DesktopSidebar';
 
 export default function ProfilePage() {
@@ -19,8 +20,9 @@ export default function ProfilePage() {
   }
   return (
     <>
+      <GuestBanner />
       <MobileProfile />
-      <BottomNav active="profile" />
+      <BottomNav active="inbox" />
     </>
   );
 }

@@ -159,3 +159,108 @@ describe('actions.voteMarket', () => {
     expect(raw.validationBoost.m1).toBe(4); // not 8
   });
 });
+
+describe('system layer actions', () => {
+  it('marks notifications as seen when opening inbox', () => {
+    actions.openNotifications();
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.notifSeen).toBe(true);
+  });
+
+  it('toggles follows by handle', () => {
+    actions.toggleFollow('@circuit');
+    let raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.follows['@circuit']).toBe(true);
+
+    actions.toggleFollow('@circuit');
+    raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.follows['@circuit']).toBe(false);
+  });
+
+  it('updates nested notification settings and top-level settings', () => {
+    actions.setSetting('notifs', 'New followers', false);
+    actions.setSetting(null, 'hideBalance', true);
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.settings.notifs['New followers']).toBe(false);
+    expect(raw.settings.hideBalance).toBe(true);
+  });
+
+  it('opens a tx overlay and applies confirmed deposit immediately when requested', () => {
+    actions.simulateTx({ kind: 'deposit', amount: 100, hash: '0xabc', label: 'Deposit test', autoConfirmMs: 0 });
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.overlay).toBe('txStatus');
+    expect(raw.overlayCtx.state).toBe('confirmed');
+    expect(raw.balance).toBeCloseTo(4920.56, 2);
+  });
+
+  it('completeOnboarding sets onboarded true and clears auth state', () => {
+    actions.completeOnboarding();
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.onboarded).toBe(true);
+    expect(raw.authProvider).toBeNull();
+  });
+
+  it('setOffline toggles offline state', () => {
+    actions.setOffline(true);
+    let raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.isOffline).toBe(true);
+
+    actions.setOffline(false);
+    raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.isOffline).toBe(false);
+  });
+
+  it('simulateTx with willFail sets failed overlay state without moving funds', () => {
+    actions.simulateTx({ kind: 'withdraw', amount: 100, hash: '0xfail', willFail: true, autoConfirmMs: 0 });
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.overlay).toBe('txStatus');
+    expect(raw.overlayCtx.state).toBe('failed');
+    expect(raw.balance).toBeCloseTo(4820.56, 2);
+  });
+
+  it('enterAsGuest sets guest mode and zeroes funded state', () => {
+    actions.enterAsGuest();
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.isGuest).toBe(true);
+    expect(raw.onboarded).toBe(true);
+    expect(raw.balance).toBe(0);
+    expect(raw.freebet).toBe(0);
+    expect(raw.positions).toEqual([]);
+  });
+
+  it('triggerDeposit for guest opens email sheet without routing state', () => {
+    actions.enterAsGuest();
+    const result = actions.triggerDeposit('trade');
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(result).toEqual({ guest: true });
+    expect(raw.depositTrigger).toBe('trade');
+    expect(raw.showEmailSheet).toBe(true);
+  });
+
+  it('triggerDeposit for non-guest stores reason without showing email sheet', () => {
+    const result = actions.triggerDeposit('manual');
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(result).toEqual({ guest: false });
+    expect(raw.depositTrigger).toBe('manual');
+    expect(raw.showEmailSheet).toBe(false);
+  });
+
+  it('captureEmail saves email and closes sheet', () => {
+    actions.enterAsGuest();
+    actions.triggerDeposit('manual');
+    actions.captureEmail('roller@example.com');
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.guestEmail).toBe('roller@example.com');
+    expect(raw.showEmailSheet).toBe(false);
+    expect(raw.isGuest).toBe(true);
+  });
+
+  it('dismissEmailSheet clears sheet and trigger', () => {
+    actions.enterAsGuest();
+    actions.triggerDeposit('create');
+    actions.dismissEmailSheet();
+    const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
+    expect(raw.showEmailSheet).toBe(false);
+    expect(raw.depositTrigger).toBeNull();
+  });
+});

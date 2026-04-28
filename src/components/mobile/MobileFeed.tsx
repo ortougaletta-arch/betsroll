@@ -4,6 +4,7 @@ import { actions, useAllMarkets, useStore } from '../../state/useStore';
 import { BRLogo } from '../primitives/BRLogo';
 import { Icon } from '../primitives/icons';
 import { SwipeableCard } from './SwipeableCard';
+import { MobileTopActions } from './MobileTopActions';
 
 export function MobileFeed() {
   const nav = useNavigate();
@@ -42,11 +43,8 @@ export function MobileFeed() {
           <div style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600 }}>Betsroll</div>
           <div style={{ fontSize: 13, color: 'var(--ink)', fontWeight: 600, marginTop: -1 }}>Roll the future</div>
         </div>
-        <button style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--bg-2)', color: 'var(--ink-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.search(16)}</button>
-        <button style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--bg-2)', color: 'var(--ink-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-          {Icon.bell(16)}
-          <span style={{ position: 'absolute', top: 8, right: 9, width: 6, height: 6, borderRadius: '50%', background: 'var(--no)' }} />
-        </button>
+        <button onClick={() => actions.openSearch()} style={{ width: 36, height: 36, borderRadius: 12, background: 'var(--bg-2)', color: 'var(--ink-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.search(16)}</button>
+        <MobileTopActions />
       </div>
 
       <div style={{ padding: '10px 16px 4px', display: 'flex', gap: 6 }}>

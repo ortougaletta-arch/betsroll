@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MARKETS } from '../../data/markets';
 import { actions, useStore } from '../../state/useStore';
 import { Avatar } from '../primitives/Avatar';
+import { MobileTopActions } from './MobileTopActions';
 
 export function MobileTrade() {
   const nav = useNavigate();
@@ -23,9 +24,13 @@ export function MobileTrade() {
         background: 'rgba(12,12,22,0.92)',
         backdropFilter: 'blur(12px)',
         position: 'sticky', top: 0, zIndex: 5,
+        display: 'flex', alignItems: 'center', gap: 12,
       }}>
-        <div style={{ fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600 }}>Portfolio</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)', letterSpacing: -0.4 }}>Trade</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600 }}>Portfolio</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)', letterSpacing: -0.4 }}>Trade</div>
+        </div>
+        <MobileTopActions />
       </div>
 
       <div style={{ padding: '14px 14px 0' }}>

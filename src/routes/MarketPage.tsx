@@ -3,6 +3,7 @@ import { useAllMarkets } from '../state/useStore';
 import { useViewport } from '../hooks/useViewport';
 import { MobileMarket } from '../components/mobile/MobileMarket';
 import { BottomNav } from '../components/mobile/BottomNav';
+import { GuestBanner } from '../components/mobile/GuestBanner';
 import { DesktopMarket } from '../components/desktop/DesktopMarket';
 
 export default function MarketPage() {
@@ -24,6 +25,7 @@ export default function MarketPage() {
   if (isDesktop) return <DesktopMarket m={m} />;
   return (
     <>
+      <GuestBanner />
       <MobileMarket m={m} />
       <BottomNav active="markets" />
     </>

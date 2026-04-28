@@ -23,6 +23,7 @@ export function MobileMarket({ m }: Props) {
   const balance = useStore((s) => s.balance);
   const freebet = useStore((s) => s.freebet);
   const positions = useStore((s) => s.positions);
+  const isGuest = useStore((s) => s.isGuest);
 
   const myPositions = positions.filter((p) => p.marketId === m.id);
   const hasYes = myPositions.find((p) => p.side === 'YES');
@@ -49,12 +50,19 @@ export function MobileMarket({ m }: Props) {
   const realizedPnl = mode === 'sell' && activePosition
     ? payout - amount
     : 0;
-  const canBuy = mode === 'buy' && amount > 0 && amount <= total;
+  const canBuy = mode === 'buy' && amount > 0 && (isGuest || amount <= total);
   const canSell = mode === 'sell' && !!activePosition && amount > 0 && amount <= activePosition.size + 0.001;
   const canSubmit = canBuy || canSell;
+  const buyLabel = isGuest
+    ? (amount > 0 ? `Save account to roll $${amount}` : 'Enter amount')
+    : (!canSubmit && amount > total ? 'Insufficient balance' : `🎲 Roll $${amount} on ${side.toUpperCase()}`);
 
   const submit = () => {
     if (mode === 'buy') {
+      if (isGuest) {
+        actions.triggerDeposit('trade');
+        return;
+      }
       const res = actions.rollBet({
         marketId: m.id, q: m.q,
         side: side === 'yes' ? 'YES' : 'NO',
@@ -353,19 +361,23 @@ export function MobileMarket({ m }: Props) {
               width: '100%', height: 50, borderRadius: 14,
               background: !canSubmit
                 ? 'rgba(255,255,255,0.05)'
+                : isGuest && mode === 'buy'
+                  ? 'linear-gradient(135deg, #7c5cff, #4cc9ff)'
                 : mode === 'buy'
                   ? (side === 'yes' ? 'linear-gradient(135deg, #9ef01a, #6dbf00)' : 'linear-gradient(135deg, #ff2e84, #c41c5f)')
                   : 'linear-gradient(135deg, #7c5cff, #4cc9ff)',
-              color: !canSubmit ? 'var(--ink-3)' : mode === 'buy' && side === 'yes' ? '#0a0a15' : '#fff',
+              color: !canSubmit ? 'var(--ink-3)' : isGuest && mode === 'buy' ? '#fff' : mode === 'buy' && side === 'yes' ? '#0a0a15' : '#fff',
               fontWeight: 700, fontSize: 15, letterSpacing: 0.3,
-              boxShadow: !canSubmit ? 'none' : mode === 'buy'
+              boxShadow: !canSubmit ? 'none' : isGuest && mode === 'buy'
+                ? '0 10px 30px rgba(124,92,255,0.35)'
+                : mode === 'buy'
                 ? (side === 'yes' ? '0 10px 30px rgba(158,240,26,0.35)' : '0 10px 30px rgba(255,46,132,0.3)')
                 : '0 10px 30px rgba(124,92,255,0.35)',
               cursor: canSubmit ? 'pointer' : 'not-allowed',
             }}
           >
             {mode === 'buy'
-              ? (!canSubmit && amount > total ? 'Insufficient balance' : `🎲 Roll $${amount} on ${side.toUpperCase()}`)
+              ? buyLabel
               : (!activePosition ? 'No position to sell' : !canSubmit ? 'Invalid amount' : `💰 Sell $${amount} ${side.toUpperCase()}`)
             }
           </button>

@@ -1,6 +1,7 @@
 import { useViewport } from '../hooks/useViewport';
 import { MobileMarkets } from '../components/mobile/MobileMarkets';
 import { BottomNav } from '../components/mobile/BottomNav';
+import { GuestBanner } from '../components/mobile/GuestBanner';
 import { DesktopFeed } from '../components/desktop/DesktopFeed';
 
 export default function MarketsPage() {
@@ -8,6 +9,7 @@ export default function MarketsPage() {
   if (isDesktop) return <DesktopFeed />; // desktop shows same markets grid — single source of truth
   return (
     <>
+      <GuestBanner />
       <MobileMarkets />
       <BottomNav active="markets" />
     </>

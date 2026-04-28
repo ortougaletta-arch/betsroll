@@ -122,15 +122,15 @@ export function MobileFeed() {
 
       {flash && (
         <div style={{
-          position: 'fixed', top: '45%', left: '50%', transform: 'translate(-50%,-50%)',
-          padding: '10px 22px', borderRadius: 14,
+          position: 'fixed', bottom: 110, left: '50%', transform: 'translateX(-50%)',
+          padding: '6px 14px', borderRadius: 999,
           background: flash === 'yes' ? 'rgba(158,240,26,0.15)' : 'rgba(255,46,132,0.15)',
           border: `1px solid ${flash === 'yes' ? 'rgba(158,240,26,0.5)' : 'rgba(255,46,132,0.5)'}`,
           color: flash === 'yes' ? 'var(--yes)' : 'var(--no)',
-          fontWeight: 700, letterSpacing: 0.6,
-          fontSize: 12, pointerEvents: 'none', zIndex: 100,
+          fontWeight: 700, letterSpacing: 0.4,
+          fontSize: 11, pointerEvents: 'none', zIndex: 100,
         }}>
-          {flash === 'yes' ? '✓ APPROVED · +2pts' : '✕ SKIPPED · +2pts'}
+          {flash === 'yes' ? '✓ Approved · +2pts' : '✕ Skipped · +2pts'}
         </div>
       )}
     </div>

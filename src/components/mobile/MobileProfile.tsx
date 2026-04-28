@@ -27,7 +27,7 @@ export function MobileProfile() {
           <button onClick={() => nav(-1)} style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(12,12,22,0.6)', backdropFilter: 'blur(6px)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--line)' }}>{Icon.back(18)}</button>
           <div style={{ display: 'flex', gap: 8 }}>
             <button style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(12,12,22,0.6)', backdropFilter: 'blur(6px)', color: 'var(--ink-2)', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.share(16)}</button>
-            <button style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(12,12,22,0.6)', backdropFilter: 'blur(6px)', color: 'var(--ink-2)', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>⚙</button>
+            <button onClick={() => nav('/settings')} aria-label="Open settings" style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(12,12,22,0.6)', backdropFilter: 'blur(6px)', color: 'var(--ink-2)', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{Icon.settings(16)}</button>
           </div>
         </div>
         <div style={{ position: 'absolute', top: 30, right: -40, width: 180, height: 180, borderRadius: '50%', border: '1px dashed rgba(255,255,255,0.08)' }} />

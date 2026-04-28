@@ -11,7 +11,7 @@ export function SignInScreen() {
   const start = (provider: string) => {
     if (provider === 'guest') {
       actions.enterAsGuest();
-      nav('/');
+      nav('/onboarding');
       return;
     }
     setBusy(provider);

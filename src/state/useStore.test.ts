@@ -224,11 +224,12 @@ describe('system layer actions', () => {
     expect(raw.balance).toBeCloseTo(4820.56, 2);
   });
 
-  it('enterAsGuest sets guest mode and zeroes funded state', () => {
+  it('enterAsGuest sets guest mode, zeroes funded state, and routes through onboarding', () => {
     actions.enterAsGuest();
     const raw = JSON.parse(localStorage.getItem('betsroll_v1')!);
     expect(raw.isGuest).toBe(true);
-    expect(raw.onboarded).toBe(true);
+    expect(raw.onboarded).toBe(false);
+    expect(raw.onboardStep).toBe(0);
     expect(raw.balance).toBe(0);
     expect(raw.freebet).toBe(0);
     expect(raw.positions).toEqual([]);

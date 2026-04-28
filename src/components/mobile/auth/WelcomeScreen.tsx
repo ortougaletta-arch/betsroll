@@ -33,7 +33,7 @@ export function WelcomeScreen() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <button className="btn-primary" onClick={() => nav('/welcome/signin')}>Get started</button>
-          <button className="btn-ghost" onClick={() => { actions.enterAsGuest(); nav('/'); }} style={{ background: 'transparent', border: 'none', color: 'var(--ink-3)', height: 38 }}>Browse as guest</button>
+          <button className="btn-ghost" onClick={() => { actions.enterAsGuest(); nav('/onboarding'); }} style={{ background: 'transparent', border: 'none', color: 'var(--ink-3)', height: 38 }}>Browse as guest</button>
         </div>
         <div style={{ textAlign: 'center', marginTop: 14, fontSize: 10.5, color: 'var(--ink-3)', lineHeight: 1.5 }}>By continuing you agree to our Terms & Privacy.<br />Trading involves risk. 18+ where permitted.</div>
       </div>

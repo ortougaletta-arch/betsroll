@@ -405,7 +405,8 @@ export const actions = {
     state = {
       ...state,
       isGuest: true,
-      onboarded: true,
+      onboarded: false,
+      onboardStep: 0,
       balance: 0,
       freebet: 0,
       positions: [],

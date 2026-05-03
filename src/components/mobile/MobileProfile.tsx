@@ -57,11 +57,11 @@ export function MobileProfile() {
 
       <div style={{ padding: '16px 14px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <StatTile label="Balance USDC" value={`$${store.balance.toFixed(2)}`} sub={store.freebet > 0 ? `+$${store.freebet.toFixed(2)} freebet` : 'available to roll'} />
-        <StatTile label="Lifetime PnL" value={`+$${ME.pnlLife.toFixed(0)}`} sub="all time" tone="yes" />
+        <StatTile label="30d PnL" value={`+$${ME.pnl30.toFixed(0)}`} sub={`Lifetime +$${ME.pnlLife.toFixed(0)}`} tone="yes" />
         <StatTile label="Win rate" value={`${Math.round(ME.winRate * 100)}%`} sub="last 90 days" />
         <StatTile label="Markets made" value={String(ME.marketsCreated)} sub={`${ME.resolved} resolved`} />
         <StatTile label="Creator fees" value={`$${ME.creatorEarnings.toFixed(0)}`} sub="as Betsroller" tone="yes" />
-        <StatTile label="VIP pts" value={store.vipPts.toLocaleString()} sub={`${tierInfo.remaining.toLocaleString()} to ${tierInfo.next}`} />
+        <StatTile label="Reputation" value={String(ME.reputation)} sub={ME.reputationBand} />
       </div>
 
       <div style={{ padding: '16px 14px 0' }}>
@@ -93,6 +93,21 @@ export function MobileProfile() {
               boxShadow: '0 0 12px rgba(255,216,107,0.5)',
             }} />
           </div>
+
+          <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {([
+              ['Reduced trading fees', '0.6% → 0.3%', true],
+              ['Feed priority boost', '1.5×', true],
+              ['Market featuring', '2 / month', true],
+              ['High-stakes access', 'Platinum +', false],
+            ] as const).map(([label, value, unlocked]) => (
+              <div key={label} style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 12 }}>
+                <span style={{ color: unlocked ? 'var(--yes)' : 'var(--ink-3)', flexShrink: 0, width: 14, textAlign: 'center' }}>{unlocked ? '✓' : '🔒'}</span>
+                <div style={{ color: 'var(--ink-2)', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</div>
+                <div className="mono" style={{ color: unlocked ? 'var(--ink)' : 'var(--ink-3)', fontSize: 11, opacity: unlocked ? 1 : 0.6, whiteSpace: 'nowrap', flexShrink: 0 }}>{value}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -110,7 +125,7 @@ export function MobileProfile() {
       </div>
 
       <div style={{ padding: '12px 14px 0' }}>
-        {tab === 'Overview' && <OverviewTab totalValue={store.positions.reduce((a, p) => a + p.size, 0)} unrealized={store.positions.reduce((a, p) => a + p.pnl, 0)} />}
+        {tab === 'Overview' && <OverviewTab totalValue={store.positions.reduce((a, p) => a + p.size, 0)} unrealized={store.positions.reduce((a, p) => a + p.pnl, 0)} positionCount={store.positions.length} />}
         {tab === 'Positions' && <PositionsTab />}
         {tab === 'Created' && <CreatedTab />}
         {tab === 'History' && <HistoryTab />}
@@ -133,11 +148,11 @@ function StatTile({ label, value, sub, tone }: { label: string; value: string; s
   );
 }
 
-function OverviewTab({ totalValue, unrealized }: { totalValue: number; unrealized: number }) {
+function OverviewTab({ totalValue, unrealized, positionCount }: { totalValue: number; unrealized: number; positionCount: number }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div>
-        <div style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600, marginBottom: 8 }}>Open positions</div>
+        <div style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600, marginBottom: 8 }}>Open positions · {positionCount}</div>
         <div style={{ padding: 12, borderRadius: 12, background: 'var(--bg-1)', border: '1px solid var(--line)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <div>
@@ -153,6 +168,28 @@ function OverviewTab({ totalValue, unrealized }: { totalValue: number; unrealize
           </div>
         </div>
       </div>
+
+      <div>
+        <div style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600, marginBottom: 8 }}>Top winning markets</div>
+        {ME.topWins.map((win, i) => (
+          <div key={win.q} style={{ display: 'flex', gap: 10, padding: '10px 0', borderBottom: i < ME.topWins.length - 1 ? '1px dashed var(--line)' : 'none', alignItems: 'center' }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: 'rgba(158,240,26,0.12)',
+              border: '1px solid rgba(158,240,26,0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--yes)', fontWeight: 700, fontSize: 12,
+              flexShrink: 0,
+            }}>✓</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{win.q}</div>
+              <div className="mono" style={{ fontSize: 10, color: 'var(--ink-3)' }}>resolved YES · {win.avg}¢ avg</div>
+            </div>
+            <div className="mono" style={{ color: 'var(--yes)', fontWeight: 700, flexShrink: 0 }}>+${win.pnl}</div>
+          </div>
+        ))}
+      </div>
+
       <div>
         <div style={{ fontSize: 11, color: 'var(--ink-3)', letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 600, marginBottom: 8 }}>Reputation badges</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

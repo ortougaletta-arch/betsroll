@@ -10,7 +10,11 @@ export type MeProfile = {
   resolved: number;
   creatorEarnings: number;
   pnlLife: number;
+  pnl30: number;
+  reputation: number;
+  reputationBand: string;
   nextTier: TierName;
+  topWins: { q: string; pnl: number; avg: number }[];
 };
 
 export const ME: MeProfile = {
@@ -22,7 +26,15 @@ export const ME: MeProfile = {
   resolved: 41,
   creatorEarnings: 614.80,
   pnlLife: 9840.22,
+  pnl30: 1240.50,
+  reputation: 94,
+  reputationBand: 'top 3% EU',
   nextTier: 'Platinum',
+  topWins: [
+    { q: 'Nvidia beats Q2 earnings', pnl: 482, avg: 92 },
+    { q: 'Fed holds rates in March', pnl: 314, avg: 74 },
+    { q: 'SpaceX Starship reaches orbit', pnl: 248, avg: 68 },
+  ],
 };
 
 export const CREATED = [

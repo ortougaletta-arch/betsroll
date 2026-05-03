@@ -78,7 +78,7 @@ export function MobileFeed() {
               <BRLogo size={56} />
               <div style={{ fontSize: 18, fontWeight: 600 }}>All caught up</div>
               <div style={{ fontSize: 13, color: 'var(--ink-3)', maxWidth: 240 }}>Fresh rolls drop every hour.</div>
-              <button onClick={() => setIdx(0)} style={{
+              <button onClick={() => { actions.resetVotes(); setIdx(0); }} style={{
                 marginTop: 8, padding: '10px 18px', borderRadius: 12,
                 background: 'linear-gradient(135deg, #7c5cff, #4cc9ff)',
                 color: '#fff', fontWeight: 600, fontSize: 13,

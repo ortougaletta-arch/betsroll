@@ -449,6 +449,11 @@ export const actions = {
     emit();
   },
 
+  resetVotes() {
+    state = { ...state, votes: {}, validationBoost: {} };
+    emit();
+  },
+
   reset() {
     state = { ...INITIAL, positions: SEED_POSITIONS, history: SEED_HISTORY };
     emit();
